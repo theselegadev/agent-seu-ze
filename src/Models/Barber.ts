@@ -1,6 +1,6 @@
-import { db  } from "../config/db";
-import { ModelsInterface } from "../Utils/interfaces/ModelsInterface";
-import { Barber as BarberType } from "../Utils/Types";
+import { db  } from "../config/db.js";
+import { ModelsInterface } from "../Utils/interfaces/ModelsInterface.js";
+import { Barber as BarberType } from "../Utils/Types.js";
 
 class Barber implements ModelsInterface<BarberType> {
     async create(data: BarberType): Promise<void> {

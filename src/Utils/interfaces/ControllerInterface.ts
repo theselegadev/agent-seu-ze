@@ -1,4 +1,4 @@
-import { ModelsInterface } from "./ModelsInterface";
+import { ModelsInterface } from "./ModelsInterface.js";
 import { FastifyRequest, FastifyReply } from "fastify";
 
 export interface ControllerInterface<T> {

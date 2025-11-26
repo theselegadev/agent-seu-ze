@@ -1,12 +1,12 @@
-import { Barber } from "../Models/Barber";
-import { ControllerInterface } from "../Utils/interfaces/ControllerInterface";
-import { Barber as BarberType } from "../Utils/Types";
+import { Barber } from "../Models/Barber.js";
+import { ControllerInterface } from "../Utils/interfaces/ControllerInterface.js";
+import { Barber as BarberType } from "../Utils/Types.js";
 import { FastifyRequest, FastifyReply } from "fastify";
 
 export class BarberController implements ControllerInterface<BarberType> {
     model: Barber = new Barber();
 
-    async create(req: FastifyRequest,reply: FastifyReply): Promise<void> {
+    create = async(req: FastifyRequest,reply: FastifyReply): Promise<void> => {
 
         try{
             await this.model.create(req.body as BarberType);
@@ -16,10 +16,10 @@ export class BarberController implements ControllerInterface<BarberType> {
             return reply.status(500).send({error: "Erro ao criar barbeiro"});
         }
     }
-    async update(req: object,reply: object): Promise<void> {
+    update = async (req: object,reply: object): Promise<void> => {
         // await this.model.update();
     }
-    async login(req: object,reply:object): Promise<boolean> {
+    login = async (req: object,reply:object): Promise<boolean> => {
         return await new Promise((resolve, reject) => {
             resolve(true);
         });
