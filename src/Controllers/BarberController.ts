@@ -19,9 +19,12 @@ export class BarberController implements ControllerInterface<BarberType> {
     update = async (req: object,reply: object): Promise<void> => {
         // await this.model.update();
     }
-    login = async (req: object,reply:object): Promise<boolean> => {
-        return await new Promise((resolve, reject) => {
-            resolve(true);
-        });
+    login = async (req: FastifyRequest<{Body: {name: string, password: string}}>,reply: FastifyReply): Promise<any> => {
+        const res = await this.model.login(req.body.name, req.body.password);
+
+        if(!res)
+            return reply.status(401).send({message: "Nome ou senha incorretos"});
+
+        return reply.status(200).send({message: "Login realizado com sucesso"});
     }
 }
