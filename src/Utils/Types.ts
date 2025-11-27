@@ -11,3 +11,10 @@ export type Client = {
     name: string,
     telefone: string   
 }
+
+export type Agenda = {
+    id?: number,
+    client_id: number,
+    barber_id: number,
+    datetime: string
+}
