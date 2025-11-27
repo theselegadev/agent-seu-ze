@@ -18,3 +18,9 @@ export type Agenda = {
     barber_id: number,
     datetime: string
 }
+
+export type AgendaWithClientInfo = {
+    nome: string,
+    telefone: string,
+    data: string
+}

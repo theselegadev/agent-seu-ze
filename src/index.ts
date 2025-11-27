@@ -17,5 +17,6 @@ app.post('/barber',barberController.create);
 app.post('/barber/login',barberController.login);
 app.post('/client',clientController.create);
 app.post('/agenda',agendaController.create);
+app.get('/agenda/:idBarber',agendaController.findAll);
 
 app.listen({ port: 3000 })
