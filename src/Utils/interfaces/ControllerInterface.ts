@@ -6,5 +6,5 @@ export interface ControllerInterface<T> {
 
     create(req: FastifyRequest,reply: FastifyReply): Promise<void>;
     update(req: FastifyRequest,reply: FastifyReply): Promise<void>;
-    login(req: FastifyRequest,reply: FastifyReply): Promise<boolean>;
+    login?(req: FastifyRequest,reply: FastifyReply): Promise<boolean>;
 }
