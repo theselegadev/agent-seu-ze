@@ -15,6 +15,7 @@ export class Agenda implements ModelsInterface<AgendaType> {
             throw err;
         }
     }
+
     async findAll<AgendaInfo>(idBarber: number): Promise<AgendaInfo[] | any> {
         const sql = `SELECT c.nome, c.telefone, a.data FROM agenda a INNER JOIN cliente c ON a.id_cliente = c.id WHERE a.id_barbeiro = ?`;
 
@@ -24,6 +25,18 @@ export class Agenda implements ModelsInterface<AgendaType> {
         }catch(err){
             console.error("Erro ao buscar agendas:", err);
             throw err;
+        }
+    }
+
+    async delete(idClient: number, idBarber: number): Promise<void>{
+        const sql = "DELETE FROM agenda WHERE id_cliente = ? AND id_barbeiro = ?";
+
+        try{
+            await db.execute(sql,[idClient,idBarber])
+            return
+        }catch(err){
+            console.error("Erro ao desagendar ", err)
+            throw err
         }
     }
 }

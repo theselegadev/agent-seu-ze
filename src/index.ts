@@ -21,6 +21,7 @@ app.post('/client',clientController.create);
 app.post('/client/login',clientController.login)
 app.post('/agenda',agendaController.create);
 app.get('/agenda/:idBarber',agendaController.findAll);
+app.delete('/agenda/:idClient/:idBarber',agendaController.delete)
 app.post('/prompt',seuZe.getPrompt)
 
 app.listen({ port: 3000 })
