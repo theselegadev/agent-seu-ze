@@ -9,14 +9,16 @@ export type Barber = {
 export type Client = {
     id?: number,
     name: string,
-    telefone: string   
+    telefone: string,
+    password: string,
+    email: string   
 }
 
 export type Agenda = {
     id?: number,
     client_id: number,
     barber_id: number,
-    datetime: string
+    datetime: string,
 }
 
 export type AgendaWithClientInfo = {
