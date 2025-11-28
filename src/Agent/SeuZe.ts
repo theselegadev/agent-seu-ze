@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { OpenAI } from "openai";
 import { ChatCompletionTool } from "openai/resources/chat/completions";
 import {Agenda} from "../Models/Agenda.js";
+import { Responses } from "../Utils/Responses.js";
 
 export class SeuZe{
     private client
@@ -85,17 +86,45 @@ export class SeuZe{
 
                 try{
                     await agenda.create({client_id: idClient, datetime: args.date_time, barber_id: idBarber});
-                    return reply.status(200).send({message: "Agenda criada com sucesso via SeuZé"});
+
+                    const Secondresponse = await this.client.chat.completions.create({
+                        model: "gpt-4.1",
+                        messages:[
+                            {role: "user",content: prompt},
+                            msg,
+                            {role:"tool",tool_call_id: call.id, content: JSON.stringify({success:true})},
+                            {
+                                role:"system",
+                                content:"Agendamento realizado com sucesso via SeuZé, informe isso ao usuário de forma breve e carismática"
+                            }
+                        ]
+                    })
+
+                    return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string));
                 }catch(err){
                     console.error("Erro ao criar agenda via SeuZé:", err);
-                    return reply.status(500).send({message: "Erro ao criar agenda via SeuZé"}); 
+                    return reply.status(500).send(Responses.error("Ocorreu algum erro ao agendar via SeuZé")); 
                 }
             }
 
             if(call.type === "function" && call.function.name === "delete_schedule"){
                 try{
                     await agenda.delete(idClient,idBarber)
-                    return reply.status(200).send({message: "Agendamento cancelado via SeuZé"}) 
+                    // resposta do modelo
+                    const Secondresponse = await this.client.chat.completions.create({
+                        model: "gpt-4.1",
+                        messages:[
+                            {role: "user",content: prompt},
+                            msg,
+                            {role:"tool",tool_call_id: call.id, content: JSON.stringify({success:true})},
+                            {
+                                role:"system",
+                                content:"Desagendamento realizado com sucesso via SeuZé, informe isso ao usuário de forma breve e carismática"
+                            }
+                        ]
+                    })
+
+                    return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string)) 
                 }catch(err){
                     console.error("Erro ao desagendar via seu Zé")
                     return reply.status(500).send({message: "Erro ao desagendar via SeuZé"})
