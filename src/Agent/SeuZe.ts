@@ -19,6 +19,13 @@ export class SeuZe{
                     required: ["date_time"]
                 }
             }
+        },
+        {
+            type: "function",
+            function: {
+                name: "delete_schedule",
+                description: "Deleta o agendamento se ele já tiver um agendamento realizado"
+            }
         }
     ]
 
@@ -68,12 +75,13 @@ export class SeuZe{
 
         const msg = response.choices[0].message;
 
+        const agenda = new Agenda();
+
         if(msg.tool_calls){
             const call = msg.tool_calls[0];
 
             if(call.type === "function" && call.function.name === "create_agenda"){
                 const args = JSON.parse(call.function.arguments!);
-                const agenda = new Agenda();
 
                 try{
                     await agenda.create({client_id: idClient, datetime: args.date_time, barber_id: idBarber});
@@ -81,6 +89,16 @@ export class SeuZe{
                 }catch(err){
                     console.error("Erro ao criar agenda via SeuZé:", err);
                     return reply.status(500).send({message: "Erro ao criar agenda via SeuZé"}); 
+                }
+            }
+
+            if(call.type === "function" && call.function.name === "delete_schedule"){
+                try{
+                    await agenda.delete(idClient,idBarber)
+                    return reply.status(200).send({message: "Agendamento cancelado via SeuZé"}) 
+                }catch(err){
+                    console.error("Erro ao desagendar via seu Zé")
+                    return reply.status(500).send({message: "Erro ao desagendar via SeuZé"})
                 }
             }
         }

@@ -10,4 +10,13 @@ export class Tools{
             throw err;
         }
     }
+
+    async deleteSchedule(idClient: number, idBarber: number){
+        try{
+            await agenda.delete(idClient,idBarber);
+        }catch(err){
+            console.error("Erro ao desmarcar o agendamento ",err)
+            throw err
+        }
+    }
 }

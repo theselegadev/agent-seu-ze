@@ -51,7 +51,5 @@ export class Agenda implements ModelsInterface<AgendaType> {
             console.error("Erro ao desagendar ", err)
             throw err
         }
-    }
-
-    
+    }   
 }
