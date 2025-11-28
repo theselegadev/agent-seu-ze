@@ -4,11 +4,12 @@ import { AgendaWithClientInfo as AgendaInfo } from "../Utils/Types.js";
 import { db } from "../config/db.js";
 
 export class Agenda implements ModelsInterface<AgendaType> {
+
     async create(agenda: AgendaType): Promise<boolean> {
         const now = new Date().toLocaleString("sv-SE",{
             timeZone: "America/Sao_Paulo",
             hour12: false
-        })
+        }).replace(/\./g,":")
         
         const dateNow = new Date(now.replace(" ","T"))
         const dateAgenda = new Date(agenda.datetime.replace(" ","T"))
@@ -51,4 +52,6 @@ export class Agenda implements ModelsInterface<AgendaType> {
             throw err
         }
     }
+
+    
 }
