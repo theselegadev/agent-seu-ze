@@ -2,17 +2,22 @@ import { ControllerInterface } from "../Utils/interfaces/ControllerInterface.js"
 import { Agenda as AgendaType, AgendaWithClientInfo as AgendaInfo } from "../Utils/Types.js";
 import { Agenda } from "../Models/Agenda.js";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { Responses } from "../Utils/Responses.js";
 
 export class AgendaController implements ControllerInterface<AgendaType> {
     model: Agenda = new Agenda()
 
     create = async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
         try{
-            await this.model.create(req.body as AgendaType);
-            return reply.status(201).send({message: "Agenda criada com sucesso"});
+            const res = await this.model.create(req.body as AgendaType);
+
+            if(res)
+                return reply.status(201).send(Responses.success("Agendamento realizado com sucesso"));
+            
+            return reply.status(400).send(Responses.error("Infelizmente esse horário está indisponivel"))
         }catch(err){
             console.error("Erro ao criar agenda:", err);
-            reply.status(500).send({message: "Erro ao criar agenda"});
+            reply.status(500).send(Responses.error("Infelizmente ocorreu um erro no agendamento"));
             throw err;
         }
     }
@@ -22,19 +27,19 @@ export class AgendaController implements ControllerInterface<AgendaType> {
         const idBarber: number = params.idBarber;
 
         if(!idBarber){
-            return reply.status(400).send({message: "ID do barbeiro é obrigatório"});
+            return reply.status(400).send(Responses.error("O ID do barbeiro é obrigatório"));
         }
 
         try{
             const agendas = await this.model.findAll<AgendaInfo>(idBarber);
 
             if(!agendas || agendas.length === 0)
-                return reply.status(404).send({message: "Nenhuma agenda encontrada para este barbeiro"});
+                return reply.status(404).send(Responses.error("Nenhum agendamento encontrado"));
 
-            return reply.status(200).send(agendas);
+            return reply.status(200).send(Responses.success("Agendamentos retornados com sucesso",agendas));
         }catch(err){
             console.error("Erro ao buscar agendas:", err);
-            reply.status(500).send({message: "Erro ao buscar agendas"});
+            reply.status(500).send(Responses.error("Infelizmente ocorreu algum erro ao buscar os agendamentos"));
             throw err;
         }
     }
@@ -43,10 +48,10 @@ export class AgendaController implements ControllerInterface<AgendaType> {
         try{
             const body = req.params as {idClient: number,idBarber: number}
             await this.model.delete(body.idClient,body.idBarber)
-            return reply.status(200).send({message: "Agendamento desmarcado com sucesso"})
+            return reply.status(200).send(Responses.success("Agendamento desmarcado com sucesso"))
         }catch(err){
             console.error("Erro ao deletar agenda ", err)
-            return
+            return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao desagendar"))
         }
     }
 }
