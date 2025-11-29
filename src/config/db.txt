@@ -109,3 +109,12 @@ CREATE TABLE agenda(
 CREATE INDEX idx_agenda_barbeiro ON agenda(id_barbeiro);
 CREATE INDEX idx_agenda_cliente ON agenda(id_cliente);
 CREATE INDEX idx_agenda_data ON agenda(data);
+
+CREATE TABLE horarios_disponiveis(
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  id_barbeiro INT,
+  data DATE,
+  hora TIME,
+  disponivel BOOLEAN DEFAULT TRUE,
+  FOREIGN KEY(id_barbeiro) REFERENCES barbeiro(id)
+);
