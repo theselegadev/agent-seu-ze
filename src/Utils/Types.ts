@@ -26,3 +26,11 @@ export type AgendaWithClientInfo = {
     telefone: string,
     data: string
 }
+
+export type Hours = {
+    id?: number,
+    barberId: number,
+    date: string,
+    hour: string,
+    available?: boolean 
+}
