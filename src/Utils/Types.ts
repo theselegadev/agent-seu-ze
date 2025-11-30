@@ -9,9 +9,7 @@ export type Barber = {
 export type Client = {
     id?: number,
     name: string,
-    telefone: string,
-    password: string,
-    email: string   
+    telefone: string, 
 }
 
 export type Agenda = {
