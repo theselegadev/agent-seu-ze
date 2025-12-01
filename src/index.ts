@@ -20,7 +20,6 @@ const seuZe = new SeuZe();
 app.post('/barber',barberController.create);
 app.post('/barber/login',barberController.login);
 app.post('/client',clientController.create);
-app.post('/client/login',clientController.login)
 app.post('/agenda',agendaController.create);
 app.get('/agenda/:idBarber',agendaController.findAll);
 app.delete('/agenda/:idClient/:idBarber',agendaController.delete)
