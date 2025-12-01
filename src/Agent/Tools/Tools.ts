@@ -1,9 +1,11 @@
 import { Agenda } from "../../Models/Agenda.js"
 import { Client } from "../../Models/Client.js";
+import { Barber } from "../../Models/Barber.js";
 import {Client as ClientType} from "../../Utils/Types.js"
 
 const agenda = new Agenda()
 const client = new Client()
+const barber = new Barber()
 
 export class Tools{
     static async createAgenda(idClient: number,dateTime: string,idBaber: number){
@@ -36,5 +38,14 @@ export class Tools{
             console.error("Ocorreu um erro ao criar cliente via ferramenta ",err)
             return false
         }
+    }
+
+    static async findBarber(idBarber: number): Promise<any>{
+        const res = await barber.find(idBarber)
+        
+        if(!res)
+            return false
+
+        return res
     }
 }

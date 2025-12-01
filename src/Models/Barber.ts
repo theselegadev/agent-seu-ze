@@ -14,6 +14,26 @@ class Barber implements ModelsInterface<BarberType> {
             throw err;
         }
     }
+
+    async find(idBarber: number): Promise<any> {
+        const sql = "SELECT id,nome FROM barbeiro WHERE id = ?";
+
+        try{
+            const [rows]: any = await db.execute(sql,[idBarber])
+            if(rows.length > 0){
+                return {
+                    id: rows[0].id,
+                    nameBarber: rows[0].nome
+                }
+            }
+
+            return false
+        }catch(err){
+            console.error("Ocorreu um erro ao encontrar o barbeiro: ", err)
+            throw err
+        }
+    }
+
     async update(data: BarberType): Promise<void> {
 
     }

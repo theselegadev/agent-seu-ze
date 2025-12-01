@@ -41,6 +41,19 @@ export class SeuZe{
                     }
                 }
             }
+        },
+        {
+            type:"function",
+            function: {
+                name: "find_barber",
+                description: "Encontra o barbeiro que o cliente que agendar com base no id do barbeiro",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        idBarber: {type: "number",description:"Id do barbeiro"}
+                    }
+                }
+            }
         }
     ]
 
@@ -99,6 +112,11 @@ export class SeuZe{
 
                     FORMATO DA DATA
                     Sempre produza datas no formato: "YYYY-MM-DD HH:mm".
+
+                    FUNÇÕES:
+                    - Quando você receber agendar_barber_1, significa que o cliente esta entrando em contato e o número no final é o id do barbeiro para você identificar qual o barbeiro que o cliente vai agendar.
+                    - Você também pode criar clientes quando o cliente fornecer o nome dele, mas lembre-se, se o cliente não fornecer o nome dele não tem como você fazer um agendamento, pois você não terá acesso ao cliente.
+                    - Também pode fazer agendamentos seguindo as regras de data mencionados a cima.
                 `},
                 {role: "user", content: prompt}
             ],
@@ -146,6 +164,16 @@ export class SeuZe{
 
                 const status = await Tools.createClient({telefone, name: args.name})
                 const Secondresponse = await this.secondRequest(msg,call,prompt,status,"O cliente esta entrando em contato, peça de forma curta, simples e carismática no que você pode ajudar no agendamento dele")
+
+                return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string))
+            }
+
+            if(call.type === "function" && call.function.name === "find_barber"){
+                const args = JSON.parse(call.function.arguments!)
+
+                const res = await Tools.findBarber(args.idBarber)
+
+                const Secondresponse = await this.secondRequest(msg,call,prompt,true,`O barbeiro foi identificado com o nome de ${res.nameBarber}, peça agora de forma carismática e curta o nome do cliente para fazer o agendamento`)
 
                 return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string))
             }
