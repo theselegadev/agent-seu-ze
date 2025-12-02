@@ -10,6 +10,7 @@ export type Client = {
     id?: number,
     name: string,
     telefone: string, 
+    idBarber: number
 }
 
 export type Agenda = {
@@ -31,4 +32,12 @@ export type Hours = {
     date: string,
     hour: string,
     available?: boolean 
+}
+
+export type Session = {
+    idBarber: number,
+    idClient: number
+    nameClient: string,
+    expireAt: number,
+    step: string
 }

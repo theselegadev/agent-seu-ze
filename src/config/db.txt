@@ -15,7 +15,9 @@ CREATE INDEX idx_barbeiro_telefone ON barbeiro(telefone);
 CREATE TABLE cliente(
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(255),
-    telefone VARCHAR(20)
+    telefone VARCHAR(20),
+    id_barbeiro INT,
+    FOREIGN KEY (id_barbeiro) REFERENCES barbeiro(id)
 );
 
 CREATE INDEX idx_cliente_telefone ON cliente(telefone);

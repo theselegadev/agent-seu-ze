@@ -3,32 +3,38 @@ import { Client as ClientType } from "../Utils/Types.js";
 import { db } from "../config/db.js";
 
 export class Client implements ModelsInterface<ClientType> {
-    create = async (client: ClientType): Promise<boolean> =>{
-        const sqlFilter = "SELECT * FROM cliente WHERE telefone = ?"
+    create = async (client: ClientType): Promise<ClientType> =>{
+        const sql = `INSERT INTO cliente (nome, telefone, id_barbeiro) VALUES (?,?,?)`;
 
         try{
-            const [rows]: any = await db.execute(sqlFilter,[client.telefone]);
+            const [result]: any = await db.execute(sql, [client.name, client.telefone, client.idBarber]);
             
-            if(rows.length > 0)
-                return false
-            
-        }catch(err){
-            console.error("Ocorreu um erro ao verificar se o cliente já existe ",err)
-            return false
-        }
-
-        const sql = `INSERT INTO cliente (nome, telefone) VALUES (?,?)`;
-
-        try{
-            await db.execute(sql, [client.name, client.telefone]);
-            return true
+            return {
+                id: result.insertId,
+                name: client.name,
+                telefone: client.telefone,
+                idBarber: client.idBarber
+            }
         }catch(err){
             console.error("Erro ao criar cliente:", err);
             throw err;
         }
     }
 
-    update = async(client: ClientType): Promise<void> =>{
-        
-    }
+    find = async (telefone: string): Promise<ClientType | null> => {
+        const sql = `SELECT * FROM cliente WHERE telefone = ?`;
+
+        try{
+            const [rows] = await db.execute(sql,[telefone])
+            const clients = rows as ClientType[]
+
+            if(clients.length > 0)
+                return clients[0]
+
+            return null
+        }catch(err){
+            console.error("Ocorreu algum erro ao encontrar cliente ", err)
+            return null
+        }
+    }   
 }

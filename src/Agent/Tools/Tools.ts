@@ -26,17 +26,14 @@ export class Tools{
         }
     }
 
-    static async createClient(clientData: ClientType): Promise<boolean>{
+    static async createClient(clientData: ClientType): Promise<ClientType>{
         try{
             const res = await client.create(clientData)
 
-            if(!res)
-                return false
-
-            return true
+            return res
         }catch(err){
             console.error("Ocorreu um erro ao criar cliente via ferramenta ",err)
-            return false
+            throw err
         }
     }
 
