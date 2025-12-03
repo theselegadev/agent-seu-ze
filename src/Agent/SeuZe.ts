@@ -38,12 +38,12 @@ export class SeuZe{
             type: "function",
             function:{
                 name:"create_client",
-                description: "Cria um cliente com base no número de telefone caso ele não exista",
+                description: "Cria um cliente com base no nome que ele enviou",
                 parameters: {
                     type:"object",
                     properties:{
                         name: {type: "string",description:"Nome do cliente que esta entrando em contato com o barbeiro"},
-                        idBarber: {type: "number",description: "Id do barbeiro identificado na mensagem identificadora: agendar_barber_x"}
+                        idBarber: {type: "number",description: "Id do barbeiro"}
                     }
                 }
             }
@@ -58,6 +58,34 @@ export class SeuZe{
                     properties: {
                         idBarber: {type: "number",description:"Id do barbeiro"}
                     }
+                }
+            }
+        },
+        {
+            type: "function",
+            function: {
+                name: "extract_date",
+                description: "Identifica a data do agendamento quando o cliente só enviar ela, sem o horário somente a data. Exemplo: quero agendar amanhã",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        date: {type: "string", description: "Data do agendamento no formato YYYY-MM-DD"}
+                    },
+                    required: ["date"]
+                }
+            }
+        },
+        {
+            type: "function",
+            function: {
+                name: "extract_time",
+                description: "Identifica o horário do agendamento quando o cliente só enviar ele, sem a data somente o horário. Exemplo: no horário das 10 e meia",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        time: {type: "string", description: "Horário do agendamento no formato HH:mm"}
+                    },
+                    required: ["time"]
                 }
             }
         }
@@ -91,16 +119,22 @@ export class SeuZe{
         const prompt: string = body.prompt;
         const telefone: string = body.telefone
 
-        const session = sessionManager.get(telefone)
-        let clientUser
+        let session = sessionManager.get(telefone)
+        let clientUser: any
 
-        if(!session)
+        if(session == undefined){
             clientUser = await client.find(telefone)
+
+            if(clientUser)
+                sessionManager.set(telefone,{idBarber: clientUser?.id_barbeiro,nameClient: clientUser.nome,idClient: clientUser?.id,step:"indefinido", nameBarber: clientUser.nameBarber})
+        }
         
+        session = sessionManager.get(telefone)
         const step = session?.step
         const nameClient = session?.nameClient
+        const nameBarber = session?.nameBarber
 
-        console.log(session, !step)
+        console.log(session)
 
         const response = await this.client.chat.completions.create({
             model: "gpt-4.1",
@@ -131,7 +165,7 @@ export class SeuZe{
                     Sempre produza datas no formato: "YYYY-MM-DD HH:mm".
 
                     SUA FUNÇÃO AGORA:
-                    - ${!step ? "Identificar qual o barbeiro do cliente através do identificador: agendar_barber_1, onde o número no final representa o id do barbeiro" : `${step === "criar_cliente" ? `Cria o cliente pedindo o nome dele de forma rápida, curta e carismática` : `${step === "agendamento" ? `O cliente ${nameClient} está precisando de ajuda no seu agendamento, pergunte o que ele precisa de forma simples e carismática` : `O cliente ${nameClient} já fez seu agendamento, avisa-o se precisar você ajuda ele, isso de forma carismática e rápida`}`}`}
+                    - ${!step ? "Identificar qual o barbeiro do cliente através do identificador: agendar_barber_1, onde o número no final representa o id do barbeiro" : `${step === "criar_cliente" ? `Criar o cliente pedindo o nome dele de forma rápida, curta e carismática, assim com o nome do cliente você deve criar o cliente` : `${step === "agendamento" ? `O cliente ${nameClient} está precisando de ajuda no seu agendamento, pergunte o que ele precisa de forma simples e carismática, se ele mandar somente o dia extraia o dia, ou se ele mandar somente o horário extrai também` : `${step === "indefinido" ? `O cliente ${nameClient} está entrando em contato e o barbeiro dele é o ${nameBarber}, pergunte se ele precisa de ajuda em algo referente ao seu agendamento de forma carismática e rápida ou interprete o que ele precisa e execute, se ele fornecer somente o dia do agendamento extrai a data ou se ele mandar somente o horário extraia o horário`: `O cliente ${nameClient} já fez seu agendamento, avisa-o para caso ele precise de você para ajuda ele, isso de forma carismática e rápida`}`}`}`}
                 `},
                 {role: "user", content: prompt}
             ],
@@ -148,7 +182,7 @@ export class SeuZe{
                 const args = JSON.parse(call.function.arguments!)
 
                 const res = await Tools.findBarber(args.idBarber)
-                sessionManager.set(telefone,{idBarber: args.idBarber, step: "criar_cliente"})
+                sessionManager.set(telefone,{idBarber: args.idBarber, nameBarber: res.nameBarber, step: "criar_cliente"})
 
                 const Secondresponse = await this.secondRequest(msg,call,prompt,true,`O barbeiro foi identificado com o nome de ${res.nameBarber} e você é o agente assistente dele, peça agora de forma carismática e curta o nome do cliente para fazer o agendamento`)
 
@@ -188,11 +222,12 @@ export class SeuZe{
             if(call.type === "function" && call.function.name === "delete_schedule"){
                 try{
                     const session = sessionManager.get(telefone)
+                    console.log(session!.idClient,session!.idBarber)
                     Tools.deleteSchedule(session!.idClient,session!.idBarber)
                     
                     const Secondresponse = await this.secondRequest(msg,call,prompt,true,"Desagendamento realizado com sucesso via SeuZé, informe isso ao usuário de forma breve e carismática")
 
-                    sessionManager.set(telefone,{step: "agendamento"})
+                    sessionManager.set(telefone,{step: "indefinido"})
 
                     return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string)) 
                 }catch(err){
@@ -200,10 +235,72 @@ export class SeuZe{
                     return reply.status(500).send({message: "Erro ao desagendar via SeuZé"})
                 }
             }
+
+            if(call.type === "function" && call.function.name === "extract_date"){
+                const args = JSON.parse(call.function.arguments)
+
+                sessionManager.set(telefone,{date: args.date})
+                const session = sessionManager.get(telefone)
+
+                let secondResponse
+
+                if(!session?.time){
+                    secondResponse = await this.secondRequest(msg,call,prompt,true,`O cliente ${session?.nameClient} enviou somente a data do agendamento, peça de forma carismática e rápida que seria o horário que ele quer marcar no dia`)
+
+                    console.log("Pedindo o horário")
+
+                    sessionManager.set(telefone,{step: "agendamento"})
+
+                    return reply.status(200).send(Responses.success(secondResponse.choices[0].message.content as string))
+                }
+                
+                const datetime = session?.date + " " + session?.time
+
+
+                await Tools.createAgenda(session.idClient,datetime, session.idBarber)
+
+                secondResponse = await this.secondRequest(msg,call,prompt,true,`O cliente ${session?.nameClient} realizou seu agendamento com o sucesso, avise-o de forma carismática e rápida`)
+
+                console.log("Fazendo agendamento")
+
+                sessionManager.set(telefone,{step: "desagendamento"})
+
+                return reply.status(200).send(Responses.success(secondResponse.choices[0].message.content as string))
+            }
+
+            if(call.type === "function" && call.function.name === "extract_time"){
+                const args = JSON.parse(call.function.arguments)
+                
+                sessionManager.set(telefone,{time: args.time})
+
+                const session = sessionManager.get(telefone)
+                let secondResponse
+
+                if(!session?.date){
+                    secondResponse = await this.secondRequest(msg,call, prompt, true, `O cliente ${session?.nameClient} enviou somente o horário do seu agendamento, peça para ele de forma educada, rápida e carismática o dia do seu agendamento`)
+                    
+                    console.log("Pedindo a data")
+
+                    sessionManager.set(telefone,{step: "agendamento"})
+
+                    return reply.status(200).send(Responses.success(secondResponse.choices[0].message.content as string))
+                }
+
+                const datetime = session?.date + " " + session?.time
+
+
+                await Tools.createAgenda(session.idClient,datetime, session.idBarber)
+
+                secondResponse = await this.secondRequest(msg,call,prompt,true,`O cliente ${session?.nameClient} realizou seu agendamento com o sucesso, avise-o de forma carismática e rápida`)
+
+                console.log("Fazendo agendamento")
+
+                sessionManager.set(telefone,{step: "desagendamento"})
+
+                return reply.status(200).send(Responses.success(secondResponse.choices[0].message.content as string))
+            }
         }
 
         reply.status(200).send(Responses.success(msg.content as string))
-    }
-    
-
+    }   
 }

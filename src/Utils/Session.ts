@@ -24,6 +24,9 @@ export class SessionManager {
             idBarber: data.idBarber ?? (old as Session).idBarber ?? 0,
             idClient: data.idClient ?? (old as Session).idClient ?? 0,
             nameClient: data.nameClient ?? (old as Session).nameClient ?? "",
+            nameBarber: data.nameBarber ?? (old as Session).nameBarber ?? "",
+            date: data.date ?? (old as Session).date ?? "",
+            time: data.time ?? (old as Session).time ?? "",
             step: data.step ?? (old as Session).step ?? "começo",
             expireAt: Date.now() + this.timeExpirate
         }

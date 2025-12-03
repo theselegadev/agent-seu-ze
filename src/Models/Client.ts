@@ -8,7 +8,7 @@ export class Client implements ModelsInterface<ClientType> {
 
         try{
             const [result]: any = await db.execute(sql, [client.name, client.telefone, client.idBarber]);
-            
+
             return {
                 id: result.insertId,
                 name: client.name,
@@ -22,7 +22,7 @@ export class Client implements ModelsInterface<ClientType> {
     }
 
     find = async (telefone: string): Promise<ClientType | null> => {
-        const sql = `SELECT * FROM cliente WHERE telefone = ?`;
+        const sql = `SELECT c.*, b.nome AS nameBarber FROM cliente c INNER JOIN barbeiro b ON c.id_barbeiro = b.id WHERE c.telefone = ?`;
 
         try{
             const [rows] = await db.execute(sql,[telefone])

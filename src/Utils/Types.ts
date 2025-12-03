@@ -38,6 +38,9 @@ export type Session = {
     idBarber: number,
     idClient: number
     nameClient: string,
+    nameBarber: string,
+    date: string,
+    time: string,
     expireAt: number,
     step: string
 }

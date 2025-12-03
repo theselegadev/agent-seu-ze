@@ -18,6 +18,7 @@ export class Tools{
     }
 
     static async deleteSchedule(idClient: number, idBarber: number){
+        console.log("entrou aqui")
         try{
             await agenda.delete(idClient,idBarber);
         }catch(err){
