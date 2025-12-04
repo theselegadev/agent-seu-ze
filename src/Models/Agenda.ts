@@ -5,6 +5,18 @@ import { db } from "../config/db.js";
 
 export class Agenda implements ModelsInterface<AgendaType> {
 
+    async verifyDateTime(date: string, time: string, idBarber: number): Promise<boolean> {
+        const sql = `SELECT * FROM horarios_disponiveis WHERE data = ? AND hora = ? AND id_barbeiro = ? AND disponivel = 1`;
+        
+        try{
+            const [rows]: any = await db.execute(sql, [date, time, idBarber]);
+            return rows.length > 0;
+        }catch(err){
+            console.error("Erro ao verificar data e hora:", err);
+            throw err;
+        }
+    }
+
     async create(agenda: AgendaType): Promise<boolean> {
         const now = new Date().toLocaleString("sv-SE",{
             timeZone: "America/Sao_Paulo",
@@ -16,12 +28,20 @@ export class Agenda implements ModelsInterface<AgendaType> {
 
         if(dateAgenda < dateNow)
             return false;
-        
+
+        const [date, time] = agenda.datetime.split(" ");
+        const res = await this.verifyDateTime(date, time, agenda.barber_id)
+
+        if(!res) return false
 
         const sql = `INSERT INTO agenda (id_barbeiro, id_cliente, data) VALUES (?,?,?)`;
 
         try{
             await db.execute(sql, [agenda.barber_id, agenda.client_id, agenda.datetime]);
+
+            const sqlUpdate = `UPDATE horarios_disponiveis SET disponivel = 0 WHERE data = ? AND hora = ? AND id_barbeiro = ?`;
+            
+            await db.execute(sqlUpdate, [date, time, agenda.barber_id]);
             return true
         }catch(err){
             console.error("Erro ao criar agenda:", err);

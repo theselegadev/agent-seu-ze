@@ -10,7 +10,8 @@ const barber = new Barber()
 export class Tools{
     static async createAgenda(idClient: number,dateTime: string,idBaber: number){
         try{
-            await agenda.create({client_id: idClient,datetime: dateTime,barber_id: idBaber})  
+            const res = await agenda.create({client_id: idClient,datetime: dateTime,barber_id: idBaber})
+            return res  
         }catch(err){
             console.error("Erro ao criar agenda via ferramenta:", err);
             throw err;

@@ -17,9 +17,7 @@ export class BarberController implements ControllerInterface<BarberType> {
             return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao criar conta"));
         }
     }
-    update = async (req: object,reply: object): Promise<void> => {
-        // await this.model.update();
-    }
+
     login = async (req: FastifyRequest<{Body: {name: string, password: string}}>,reply: FastifyReply): Promise<any> => {
         const res = await this.model.login(req.body.name, req.body.password);
 
