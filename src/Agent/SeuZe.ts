@@ -88,6 +88,21 @@ export class SeuZe{
                     required: ["time"]
                 }
             }
+        },
+        {
+            type: "function",
+            function: {
+                name: "find_hours_available",
+                description: "Encontra os horários disponíveis de um barbeiro em uma data específica",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        idBarber: {type: "number", description: "ID do barbeiro"},
+                        date: {type: "string", description: "Data para verificar os horários disponíveis no formato YYYY-MM-DD"}
+                    },
+                    required: ["idBarber","date"]
+                }
+            }
         }
     ]
 
@@ -101,16 +116,9 @@ export class SeuZe{
         const Secondresponse = await this.client.chat.completions.create({
             model: "gpt-4.1",
             messages:[
-                {
-                role: "assistant",
-                content: msg.content ?? null,
-                tool_calls: msg.tool_calls
-                },
+                {role: "assistant",content: msg.content ?? null,tool_calls: msg.tool_calls},
                 {role:"tool",tool_call_id: call.id, content: JSON.stringify(status)},
-                {
-                    role:"system",
-                    content
-                }
+                {role:"system",content}
             ]
         })
 
@@ -164,7 +172,7 @@ export class SeuZe{
                     - Seja amigável e carismático, porém breve e rápido.
                     - Execute somente a sua função, se o cliente sair de contexto avise-o que você é somente um assistente especializado em agendamentos e só é capaz de ajuda-lo referente ao seu atendimento.
                     - Só extraia a data e o time quando eles forem mandados sozinhos pelo usuário, nunca extraia ambos juntos, se a data e o horario forem mandados juntos apenas crie a agenda.
-                    - Só execute uma ferramenta por interação, nunca mais de uma.
+                    - Só execute uma ferramenta por interação, NUNCA mais de uma.
 
                     FORMATO DA DATA
                     - Sempre produza datas no formato: "YYYY-MM-DD HH:mm".
@@ -177,6 +185,7 @@ export class SeuZe{
                     - delete_schedule: Usada para deletar o agendamento do cliente se ele já tiver um agendamento realizado.
                     - extract_date: Usada para identificar a data do agendamento quando o cliente só enviar ela, sem o horário, somente quando a data for identificada na mensagem.
                     - extract_time: Usada para identificar o horário do agendamento quando o cliente só enviar ele, sem a data, somente quando o horario for identificado.
+                    - find_hours_available: Usada para encontrar os horários disponíveis de um barbeiro em uma data específica, quando o horário solicitado não estiver disponível.
 
                     SUA FUNÇÃO AGORA:
                     - ${!step ? "Identificar qual o barbeiro do cliente através do identificador: agendar_barber_1, onde o número no final representa o id do barbeiro" : `${step === "criar_cliente" ? `Criar o cliente pedindo o nome dele de forma rápida, curta e carismática, assim com o nome do cliente você deve cadastrar o cliente` : `${step === "agendamento" ? `O cliente ${nameClient} está precisando de ajuda no seu agendamento, pergunte o que ele precisa de forma simples e carismática` : `${step === "indefinido" ? `O cliente ${nameClient} está entrando em contato e o barbeiro dele é o ${nameBarber}, pergunte se ele precisa de ajuda em algo referente ao seu agendamento de forma carismática e rápida ou interprete o que ele precisa e execute.`: `O cliente ${nameClient} já fez seu agendamento, avisa-o para caso ele precise de você para ajuda ele, isso de forma carismática e rápida`}`}`}`}
@@ -227,8 +236,14 @@ export class SeuZe{
                     console.log(res)
 
                     if(!res){
-                        message = "Infelizmente não foi possível criar o agendamento na data e hora solicitadas, pois elas estão indisponiveis. informe isso ao cliente de forma carismática e rápida" 
-                        status = {status: false, error: "Horário indisponível"}   
+                        const hoursAvailable = await Tools.findHoursAvailable(session!.idBarber, args.date_time.split(" ")[0])
+
+                        if(hoursAvailable.length > 0)
+                            message = `Infelizmente o horário solicitado já está indisponível. Os horários disponíveis para o dia ${args.date_time} são: ${hoursAvailable.map((hour:any) => hour.hora).join(", ")}. Informe isso ao cliente de forma carismática e rápida.`
+                        else
+                            message = "Infelizmente não foi possível criar o agendamento na data e hora solicitadas, pois elas estão indisponiveis. informe isso ao cliente de forma carismática e rápida" 
+                           
+                        status = {status: false, error: "Horário indisponível"}
                     }else{
                         message = "Agendamento feito com sucesso via seu zé, retorne uma resposta simples, curta e carismática"
                         status = {status: true}
@@ -326,6 +341,22 @@ export class SeuZe{
                 sessionManager.set(telefone,{step: "desagendamento"})
 
                 return reply.status(200).send(Responses.success(secondResponse.choices[0].message.content as string))
+            }
+
+            if(call.type === "function" && call.function.name === "find_hours_available"){
+                const args = JSON.parse(call.function.arguments)
+                let message
+
+                const hoursAvailable = await Tools.findHoursAvailable(args.idBarber, args.date)
+
+                if(hoursAvailable.length > 0)
+                    message = `Os horários disponíveis para o dia ${args.date} são: ${hoursAvailable.map((hour:any) => hour.hora).join(", ")}. Informe isso ao cliente de forma carismática e rápida.`
+                else
+                    message = "Infelizmente não há horários disponíveis para o dia solicitado. informe isso ao cliente de forma carismática e rápida"
+
+                const Secondresponse = await this.secondRequest(msg,call,{status:true},message)
+
+                return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string))
             }
         }
 

@@ -1,11 +1,13 @@
 import { Agenda } from "../../Models/Agenda.js"
 import { Client } from "../../Models/Client.js";
 import { Barber } from "../../Models/Barber.js";
+import { Hours } from "../../Models/Hours.js";
 import {Client as ClientType} from "../../Utils/Types.js"
 
 const agenda = new Agenda()
 const client = new Client()
 const barber = new Barber()
+const hours = new Hours()
 
 export class Tools{
     static async createAgenda(idClient: number,dateTime: string,idBaber: number){
@@ -47,4 +49,9 @@ export class Tools{
 
         return res
     }
+
+    static async findHoursAvailable(barberId: number, date: string): Promise<object[]>{
+        const res = await hours.findHoursAvailable(barberId, date)
+        return res
+    }   
 }
