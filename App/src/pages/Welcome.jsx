@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Logo from '../assets/Logo.png'
 import {ReactTyped} from 'react-typed'
 
@@ -15,7 +16,7 @@ const Welcome = () => {
         </div>
         <div className="d-flex justify-content-center align-items-center w-100">
             <button className="btn btn-primary mx-2">Entrar</button>
-            <button className="btn btn-success">Cadastrar-se</button>
+            <Link to="/cadastrar" className="btn btn-success">Cadastrar-se</Link>
         </div>     
     </div>
   )
