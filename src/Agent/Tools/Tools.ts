@@ -53,5 +53,10 @@ export class Tools{
     static async findHoursAvailable(barberId: number, date: string): Promise<object[]>{
         const res = await hours.findHoursAvailable(barberId, date)
         return res
-    }   
+    }
+
+    static async findDateAvailable(barberId: number): Promise<object[]>{
+        const res = await hours.findDateAvailable(barberId)
+        return res
+    }
 }

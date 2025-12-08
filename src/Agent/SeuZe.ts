@@ -65,7 +65,7 @@ export class SeuZe{
             type: "function",
             function: {
                 name: "extract_date",
-                description: "Identifica a data do agendamento quando o cliente só enviar ela, sem o horário somente a data. Exemplo: quero agendar amanhã",
+                description: "Identifica a data que o cliente quer agendar quando o cliente só enviar ela, sem o horário somente a data. Exemplo: quero agendar amanhã",
                 parameters: {
                     type: "object",
                     properties: {
@@ -79,7 +79,7 @@ export class SeuZe{
             type: "function",
             function: {
                 name: "extract_time",
-                description: "Identifica o horário do agendamento quando o cliente só enviar ele, sem a data somente o horário. Exemplo: no horário das 10 e meia",
+                description: "Identifica o horário que o cliente quer agendar quando o cliente só enviar ele, sem a data somente o horário. Exemplo: no horário das 10 e meia",
                 parameters: {
                     type: "object",
                     properties: {
@@ -93,15 +93,21 @@ export class SeuZe{
             type: "function",
             function: {
                 name: "find_hours_available",
-                description: "Encontra os horários disponíveis de um barbeiro em uma data específica",
+                description: "Encontra os horários disponíveis em uma data específica quando o cliente solicitar os horários disponíveis dessa data. Exemplo: quais são os horários disponíveis para o dia 10",
                 parameters: {
                     type: "object",
                     properties: {
-                        idBarber: {type: "number", description: "ID do barbeiro"},
                         date: {type: "string", description: "Data para verificar os horários disponíveis no formato YYYY-MM-DD"}
                     },
-                    required: ["idBarber","date"]
+                    required: ["date"]
                 }
+            }
+        },
+        {
+            type: "function",
+            function: {
+                name: "find_date_available",
+                description: "Encontra as datas disponíveis para fazer agendamentos quando o cliente solicitar as datas disponíveis. Exemplo: quais são as datas disponíveis para agendar",
             }
         }
     ]
@@ -183,9 +189,10 @@ export class SeuZe{
                     - create_client: Usada para criar o cliente pedindo o nome dele de forma rápida, curta e carismática, assim com o nome do cliente você deve criar o cliente.
                     - create_agenda: Usada para criar o agendamento do cliente com o barbeiro na data e hora especificados, utilizado sempre que a data e o horário forem identificados na mesma mensagem.
                     - delete_schedule: Usada para deletar o agendamento do cliente se ele já tiver um agendamento realizado.
-                    - extract_date: Usada para identificar a data do agendamento quando o cliente só enviar ela, sem o horário, somente quando a data for identificada na mensagem.
-                    - extract_time: Usada para identificar o horário do agendamento quando o cliente só enviar ele, sem a data, somente quando o horario for identificado.
+                    - extract_date: Usada para identificar a data que o cliente quer agendar quando o cliente só enviar ela, sem o horário, somente quando a data for identificada na mensagem.
+                    - extract_time: Usada para identificar o horário que o cliente quer agendar quando o cliente só enviar ele, sem a data, somente quando o horario for identificado.
                     - find_hours_available: Usada para encontrar os horários disponíveis de um barbeiro em uma data específica, quando o horário solicitado não estiver disponível.
+                    - find_date_available: Usada para encontrar as datas disponíveis para fazer agendamentos com um barbeiro, quando o cliente solicitar as datas disponíveis.
 
                     SUA FUNÇÃO AGORA:
                     - ${!step ? "Identificar qual o barbeiro do cliente através do identificador: agendar_barber_1, onde o número no final representa o id do barbeiro" : `${step === "criar_cliente" ? `Criar o cliente pedindo o nome dele de forma rápida, curta e carismática, assim com o nome do cliente você deve cadastrar o cliente` : `${step === "agendamento" ? `O cliente ${nameClient} está precisando de ajuda no seu agendamento, pergunte o que ele precisa de forma simples e carismática` : `${step === "indefinido" ? `O cliente ${nameClient} está entrando em contato e o barbeiro dele é o ${nameBarber}, pergunte se ele precisa de ajuda em algo referente ao seu agendamento de forma carismática e rápida ou interprete o que ele precisa e execute.`: `O cliente ${nameClient} já fez seu agendamento, avisa-o para caso ele precise de você para ajuda ele, isso de forma carismática e rápida`}`}`}`}
@@ -288,7 +295,9 @@ export class SeuZe{
                 let secondResponse
 
                 if(!session?.time){
-                    secondResponse = await this.secondRequest(msg,call,{status:true},`O cliente ${session?.nameClient} enviou somente a data do agendamento, peça de forma carismática e rápida que seria o horário que ele quer marcar no dia`)
+                    const hoursAvailable = await Tools.findHoursAvailable(session!.idBarber, args.date)
+
+                    secondResponse = await this.secondRequest(msg,call,{status:true},`O cliente ${session?.nameClient} enviou somente a data do agendamento, esses são os horários disponíveis: ${hoursAvailable.map((hour:any) => hour.hora).join(", ")} ,peça de forma carismática e rápida que seria o horário que ele quer marcar no dia`)
 
                     console.log("Pedindo o horário")
 
@@ -347,12 +356,28 @@ export class SeuZe{
                 const args = JSON.parse(call.function.arguments)
                 let message
 
-                const hoursAvailable = await Tools.findHoursAvailable(args.idBarber, args.date)
+                const hoursAvailable = await Tools.findHoursAvailable(session!.idBarber, args.date)
 
-                if(hoursAvailable.length > 0)
+                if(hoursAvailable.length > 0){
+                    sessionManager.set(telefone,{date: args.date})
                     message = `Os horários disponíveis para o dia ${args.date} são: ${hoursAvailable.map((hour:any) => hour.hora).join(", ")}. Informe isso ao cliente de forma carismática e rápida.`
-                else
+                }else{
                     message = "Infelizmente não há horários disponíveis para o dia solicitado. informe isso ao cliente de forma carismática e rápida"
+                }
+                const Secondresponse = await this.secondRequest(msg,call,{status:true},message)
+
+                return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string))
+            }
+
+            if(call.type === "function" && call.function.name === "find_date_available"){
+                const dates = await Tools.findDateAvailable(session!.idBarber)
+                let message
+
+                if(dates.length > 0){
+                    message = `As datas disponíveis para agendamento são: ${dates.map((date:any) => date.data).join(", ")}. Informe isso ao cliente de forma carismática e rápida.`
+                }else{
+                    message = "Infelizmente não há datas disponíveis para agendamento. informe isso ao cliente de forma carismática e rápida"
+                }
 
                 const Secondresponse = await this.secondRequest(msg,call,{status:true},message)
 

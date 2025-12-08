@@ -15,13 +15,25 @@ export class Hours implements ModelsInterface<HoursType>{
     }
 
     async findHoursAvailable(barberId: number, date: string): Promise<object[]>{ 
-        const sql = "SELECT hora FROM horarios_disponiveis WHERE id_barbeiro = ? AND data = ?";
+        const sql = "SELECT hora FROM horarios_disponiveis WHERE id_barbeiro = ? AND data = ? AND disponivel = 1";
 
         try{
             const [rows] = await db.execute(sql,[barberId, date]);
             return rows as object[];
         }catch(err){
             console.error("Erro ao buscar horários disponíveis: ", err)
+            throw err
+        }
+    }
+
+    async findDateAvailable(barberId: number): Promise<object[]>{
+        const sql = "SELECT DISTINCT data FROM horarios_disponiveis WHERE id_barbeiro = ? AND disponivel = 1";
+
+        try{
+            const [rows] = await db.execute(sql,[barberId]);
+            return rows as object[];
+        }catch(err){
+            console.error("Erro ao buscar datas disponíveis: ", err)
             throw err
         }
     }
