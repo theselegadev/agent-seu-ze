@@ -15,7 +15,7 @@ const Welcome = () => {
             /></h3>
         </div>
         <div className="d-flex justify-content-center align-items-center w-100">
-            <button className="btn btn-primary mx-2">Entrar</button>
+            <Link to="/entrar" className="btn btn-primary mx-2">Entrar</Link>
             <Link to="/cadastrar" className="btn btn-success">Cadastrar-se</Link>
         </div>     
     </div>
