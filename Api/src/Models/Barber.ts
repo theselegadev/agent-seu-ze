@@ -1,14 +1,16 @@
 import { db  } from "../config/db.js";
+import { ResultSetHeader } from "mysql2";
 import { ModelsInterface } from "../Utils/interfaces/ModelsInterface.js";
 import { Barber as BarberType } from "../Utils/Types.js";
 import bcrypt from "bcrypt";
 
 class Barber implements ModelsInterface<BarberType> {
-    async create(data: BarberType): Promise<void> {
+    async create(data: BarberType): Promise<number> {
         const sql: string = "INSERT INTO barbeiro (nome,telefone,endereco,senha) VALUES (?, ?, ?, ?)";
         const hashedPassword = await bcrypt.hash(data.password, 10);
         try{
-            await db.execute(sql, [data.name, data.telefone, data.address, hashedPassword]);
+           const [result] = await db.execute<ResultSetHeader>(sql, [data.name, data.telefone, data.address, hashedPassword]);
+           return result.insertId as number;
         }catch(err){
             console.error("Erro ao criar barbeiro: ", err);
             throw err;
@@ -37,8 +39,8 @@ class Barber implements ModelsInterface<BarberType> {
     async update(data: BarberType): Promise<void> {
 
     }
-    async login(name: string, password: string): Promise<boolean> {
-        const sql: string = "SELECT senha FROM barbeiro WHERE nome = ?";
+    async login(name: string, password: string): Promise<number | boolean> {
+        const sql: string = "SELECT id,senha FROM barbeiro WHERE nome = ?";
 
         try{
             const [rows] = await db.execute(sql, [name]);
@@ -48,9 +50,13 @@ class Barber implements ModelsInterface<BarberType> {
                 return false
 
             const hashedPassword: string = users[0].senha;
+            const idBarber: number = users[0].id;
             const isMatch: boolean = await bcrypt.compare(password, hashedPassword);
 
-            return isMatch;
+            if(!isMatch)
+                return false;
+
+            return idBarber;
         }catch(err){
             console.error("Erro ao fazer login: ", err);
             throw err;
