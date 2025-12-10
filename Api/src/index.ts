@@ -1,5 +1,7 @@
 import Fastify from 'fastify';
 import dotenv from 'dotenv';
+import cors from '@fastify/cors';
+
 
 dotenv.config();
 
@@ -16,6 +18,10 @@ const clientController = new ClientController();
 const agendaController = new AgendaController();
 const hoursController = new HoursController()
 const seuZe = new SeuZe();
+
+app.register(cors,{
+    origin: '*'
+})
 
 app.post('/barber',barberController.create);
 app.post('/barber/login',barberController.login);

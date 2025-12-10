@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "@mastra/core": "^0.24.6",
     "@mastra/server": "^0.24.6",
     "bcrypt": "^6.0.0",
