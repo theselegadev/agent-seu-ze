@@ -2,6 +2,7 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Welcome from './pages/welcome.jsx'
 import Cadaster from './pages/Cadaster.jsx'
 import Enter from './pages/Enter.jsx'
+import  Home  from './pages/Home.jsx'
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
           <Route path='/' element={<Welcome/>} />
           <Route path='/cadastrar' element={<Cadaster/>} />
           <Route path='/entrar' element={<Enter/>}/>
+          <Route path='/home' element={<Home/>}/>
         </Routes>
       </BrowserRouter>
     </div>
