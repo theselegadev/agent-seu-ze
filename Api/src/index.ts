@@ -30,6 +30,7 @@ app.post('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.cre
 app.get('/agenda/:idBarber',{preHandler: AuthMiddleware.verifyToken},agendaController.findAll);
 app.delete('/agenda/:idClient/:idBarber',{preHandler: AuthMiddleware.verifyToken},agendaController.delete)
 app.post('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.create)
+app.get('/hours/:idBarber',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
 app.post('/prompt',seuZe.getPrompt)
 
 app.listen({ port: 3000 })

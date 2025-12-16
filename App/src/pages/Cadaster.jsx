@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, redirect } from "react-router-dom"
 import { useState } from "react"
 import useRequest from "../hooks/useRequest"
 
@@ -19,7 +19,10 @@ const Cadaster = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-            console.log("User registered successfully:", data);
+            
+            localStorage.setItem("barberId", data.barberId);
+            localStorage.setItem("barberToken", data.token);
+            redirect("/")
         } catch (error) {
             console.error("Error registering user:", error);
         }
@@ -29,8 +32,8 @@ const Cadaster = () => {
     <div className="d-flex justify-content-center align-items-center vh-100 vw-100 bg-light">
         {loading && 
         <div className="d-flex flex-column justify-content-center align-items-center gap-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
             </div>
             <p className="fs-5 fw-medium">Carregando...</p>
         </div>

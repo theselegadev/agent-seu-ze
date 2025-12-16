@@ -18,4 +18,21 @@ export class HoursController implements ControllerInterface<HoursType>{
             return reply.status(500).send(Responses.error("Infelizemente ocorreu um erro ao cadastrar horário"))
         }
     }
+
+    getAll = async(req: FastifyRequest, reply: FastifyReply): Promise<HoursType> =>{
+        const params = req.params as {idBarber: number}
+        const idBarber = params.idBarber
+
+        try{
+            const hours = await this.model.getAll(idBarber)
+
+            if(hours.length === 0)
+                return reply.status(404).send(Responses.error("Nenhum horário encontrado"))
+
+            return reply.status(200).send(Responses.success("Horários buscados com sucesso", hours))
+        }catch(err){
+            console.error("Ocorreu um erro ao buscar os horários ",err)
+            return reply.status(500).send(Responses.error("Infelizemente ocorreu um erro ao buscar os horários"))
+        }   
+    }
 }

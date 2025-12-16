@@ -37,4 +37,16 @@ export class Hours implements ModelsInterface<HoursType>{
             throw err
         }
     }
+
+    async getAll(idBarber: number): Promise<HoursType[]>{
+        const sql = "SELECT * FROM horarios_disponiveis WHERE id_barbeiro = ?";
+
+        try{
+            const [rows] = await db.execute(sql,[idBarber]);
+            return rows as HoursType[];
+        }catch(err){
+            console.error("Erro ao buscar todos os horários: ", err)
+            throw err
+        }
+    }
 }
