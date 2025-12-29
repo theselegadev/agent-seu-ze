@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom"
 import { FormatDate,FormatHour } from "../Utils/Format"
 import useRequest from "../hooks/useRequest"
 import Header from "../components/Header"
+import {Trash2} from "lucide-react"
 
 const Hours = () => {
   const [hours,setHours] = useState([])
   const [loading,setLoading] = useState(false)
+  const [date,setDate] = useState("")
+  const [hour,setHour] = useState("")
+  const [showModal,setShowModal] = useState(false)
   const navigate = useNavigate()
 
   useEffect(()=>{
@@ -28,6 +32,28 @@ const Hours = () => {
     fetchHours()
   },[])
 
+  const handleSubmit = async (e) => {mas 
+    e.preventDefault();
+    const token = localStorage.getItem("barberToken");
+    const barberId = localStorage.getItem("barberId");
+
+    const response = await useRequest(`/hours`, setLoading, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        barberId,
+        date,
+        hour
+      })
+    });
+
+    console.log(response);
+    setShowModal(false);
+  }
+
   return (
     <div className="vh-100 vw-100">
         <Header/>
@@ -41,7 +67,7 @@ const Hours = () => {
         {!loading && <div className="card col-11 col-lg-9 m-auto mt-5 shadow-sm">
           <div className="card-header d-flex justify-content-between align-items-center">
             <h5 className="card-title">Horas Cadastradas</h5>
-            <button className="btn btn-success btn-sm">Nova</button>
+            <button className="btn btn-success btn-sm" onClick={()=>setShowModal(true)}>Nova</button>
           </div>
           <div className="card-body">
             <table className="table table-striped">
@@ -49,7 +75,7 @@ const Hours = () => {
                 <tr>
                   <th scope="col">Data</th>
                   <th scope="col">Hora</th>
-                  <th scope="col">Disponivel</th>
+                  <th scope="col">Livre</th>
                   <th></th>
                 </tr>
               </thead>
@@ -59,7 +85,10 @@ const Hours = () => {
                     <td>{FormatDate(hour.data)}</td>
                     <td>{FormatHour(hour.hora)}</td>
                     <td>{hour.disponivel ? "✅" : "❌"}</td>
-                    <td><button className="btn btn-primary btn-sm">Editar</button></td>
+                    <td className="d-flex gap-2">
+                      <button className="btn btn-primary btn-sm">Editar</button>
+                      <button className="btn btn-danger btn-sm"><Trash2 size={22}/></button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -71,6 +100,36 @@ const Hours = () => {
               }
           </div>
         </div>}
+
+        {/* Modal para criar nova hora */}
+        {showModal && <>
+        <div className="modal show d-block" id="newHourModal" tabIndex="-1" aria-labelledby="newHourModalLabel" aria-hidden="true" onClick={()=>setShowModal(false)}>
+          <div className="modal-dialog" onClick={(e)=>e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="newHourModalLabel">Novo Horário</h5>
+                <button type="button" className="btn-close" onClick={()=>setShowModal(false)} aria-label="Close"></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label htmlFor="date">Data:</label>
+                    <input type="date" id="date" min={new Date().toISOString().split("T")[0]} name="date" className="form-control" required onChange={(e) => setDate(e.target.value)}/>
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="hour">Hora:</label>
+                    <input type="time" id="hour" name="hour" className="form-control" required onChange={(e) => setHour(e.target.value)}/>
+                  </div>
+                  <div className="mb-3 col-12">
+                    <button className="btn btn-success w-100" type="submit">Cadastrar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="modal-backdrop fade show" onClick={()=>setShowModal(false)}></div>
+        </>}
     </div>
   )
 }
