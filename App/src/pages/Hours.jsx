@@ -10,6 +10,7 @@ const Hours = () => {
   const [hours,setHours] = useState([])
   const [loading,setLoading] = useState(false)
   const [date,setDate] = useState("")
+  const dateNow = new Date().toISOString().split("T")[0]
   const [hour,setHour] = useState("")
   const [showModal,setShowModal] = useState(false)
   const navigate = useNavigate()
@@ -122,7 +123,7 @@ const Hours = () => {
                   </div>
                   <div className="mb-3">
                     <label htmlFor="hour">Hora:</label>
-                    <input type="time" id="hour" name="hour" className="form-control" required onChange={(e) => setHour(e.target.value)}/>
+                    <input type="time" id="hour" name="hour" min={date == dateNow ? new Date().toTimeString().slice(0,5) : ""} className="form-control" required onChange={(e) => setHour(e.target.value)}/>
                   </div>
                   <div className="mb-3 col-12">
                     <button className="btn btn-success w-100" type="submit">Cadastrar</button>
