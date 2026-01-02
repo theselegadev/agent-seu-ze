@@ -21,7 +21,7 @@ const Hours = () => {
 
       if (!token || !barberId) navigate('/');
 
-      const response = await useRequest(`/hours/${barberId}`, setLoading, {
+      const response = await useRequest(`/hours`, setLoading, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

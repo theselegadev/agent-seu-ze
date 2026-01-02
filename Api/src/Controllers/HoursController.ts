@@ -9,7 +9,7 @@ export class HoursController implements ControllerInterface<HoursType>{
 
     create = async(req: FastifyRequest, reply: FastifyReply): Promise<void> =>{
         const body = req.body as HoursType
-
+        body.idBarber = req.idBarber
         try{
             await this.model.create(body)
             return reply.status(201).send(Responses.success("Horário cadastrado com sucesso"))
@@ -20,8 +20,7 @@ export class HoursController implements ControllerInterface<HoursType>{
     }
 
     getAll = async(req: FastifyRequest, reply: FastifyReply): Promise<HoursType> =>{
-        const params = req.params as {idBarber: number}
-        const idBarber = params.idBarber
+        const idBarber: number = req.idBarber
 
         try{
             const hours = await this.model.getAll(idBarber)

@@ -23,8 +23,7 @@ export class AgendaController implements ControllerInterface<AgendaType> {
     }
     
     findAll = async (req: FastifyRequest, reply: FastifyReply): Promise<AgendaInfo[] | any> => {
-        const params = req.params as {idBarber: number};
-        const idBarber: number = params.idBarber;
+        const idBarber: number = req.idBarber
 
         if(!idBarber){
             return reply.status(400).send(Responses.error("O ID do barbeiro é obrigatório"));
@@ -46,8 +45,10 @@ export class AgendaController implements ControllerInterface<AgendaType> {
     
     delete = async(req: FastifyRequest,reply: FastifyReply): Promise<void> =>{
         try{
-            const body = req.params as {idClient: number,idBarber: number}
-            await this.model.delete(body.idClient,body.idBarber)
+            const idBarber: number = req.idBarber
+            const idClient: number = (req.params as {idClient: number}).idClient
+            
+            await this.model.delete(idClient, idBarber);
             return reply.status(200).send(Responses.success("Agendamento desmarcado com sucesso"))
         }catch(err){
             console.error("Erro ao deletar agenda ", err)

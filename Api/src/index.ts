@@ -27,10 +27,10 @@ app.post('/barber',barberController.create);
 app.post('/barber/login',barberController.login);
 app.post('/client',{preHandler: AuthMiddleware.verifyToken},clientController.create);
 app.post('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.create);
-app.get('/agenda/:idBarber',{preHandler: AuthMiddleware.verifyToken},agendaController.findAll);
-app.delete('/agenda/:idClient/:idBarber',{preHandler: AuthMiddleware.verifyToken},agendaController.delete)
+app.get('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.findAll);
+app.delete('/agenda/:idClient',{preHandler: AuthMiddleware.verifyToken},agendaController.delete)
 app.post('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.create)
-app.get('/hours/:idBarber',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
+app.get('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
 app.post('/prompt',seuZe.getPrompt)
 
 app.listen({ port: 3000 })

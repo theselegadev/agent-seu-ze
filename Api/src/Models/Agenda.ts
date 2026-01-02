@@ -30,18 +30,18 @@ export class Agenda implements ModelsInterface<AgendaType> {
             return false;
 
         const [date, time] = agenda.datetime.split(" ");
-        const res = await this.verifyDateTime(date, time, agenda.barber_id)
+        const res = await this.verifyDateTime(date, time, agenda.idBarber)
 
         if(!res) return false
 
         const sql = `INSERT INTO agenda (id_barbeiro, id_cliente, data) VALUES (?,?,?)`;
 
         try{
-            await db.execute(sql, [agenda.barber_id, agenda.client_id, agenda.datetime]);
+            await db.execute(sql, [agenda.idBarber, agenda.client_id, agenda.datetime]);
 
             const sqlUpdate = `UPDATE horarios_disponiveis SET disponivel = 0 WHERE data = ? AND hora = ? AND id_barbeiro = ?`;
             
-            await db.execute(sqlUpdate, [date, time, agenda.barber_id]);
+            await db.execute(sqlUpdate, [date, time, agenda.idBarber]);
             return true
         }catch(err){
             console.error("Erro ao criar agenda:", err);
