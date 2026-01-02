@@ -4,6 +4,7 @@ import { FormatDate,FormatHour } from "../Utils/Format"
 import useRequest from "../hooks/useRequest"
 import Header from "../components/Header"
 import {Trash2} from "lucide-react"
+import "../assets/styles.css"
 
 const Hours = () => {
   const [hours,setHours] = useState([])
@@ -13,8 +14,7 @@ const Hours = () => {
   const [showModal,setShowModal] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(()=>{
-    const fetchHours = async () => {
+  const fetchHours = async () => {
       const token = localStorage.getItem("barberToken");
       const barberId = localStorage.getItem("barberId");
 
@@ -28,11 +28,14 @@ const Hours = () => {
         }
       });
       setHours(response.data);
-    }
+  }
+    
+
+  useEffect(()=>{
     fetchHours()
   },[])
 
-  const handleSubmit = async (e) => {mas 
+  const handleSubmit = async (e) => { 
     e.preventDefault();
     const token = localStorage.getItem("barberToken");
     const barberId = localStorage.getItem("barberId");
@@ -52,6 +55,7 @@ const Hours = () => {
 
     console.log(response);
     setShowModal(false);
+    fetchHours()
   }
 
   return (
@@ -103,7 +107,7 @@ const Hours = () => {
 
         {/* Modal para criar nova hora */}
         {showModal && <>
-        <div className="modal show d-block" id="newHourModal" tabIndex="-1" aria-labelledby="newHourModalLabel" aria-hidden="true" onClick={()=>setShowModal(false)}>
+        <div className={`modal show d-block showModal`} id="newHourModal" tabIndex="-1" aria-labelledby="newHourModalLabel" aria-hidden="true" onClick={()=>setShowModal(false)}>
           <div className="modal-dialog" onClick={(e)=>e.stopPropagation()}>
             <div className="modal-content">
               <div className="modal-header">
