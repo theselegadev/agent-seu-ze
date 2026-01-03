@@ -6,15 +6,20 @@ import Header from "../components/Header"
 import {Trash2} from "lucide-react"
 import "../assets/styles.css"
 
+import ModalDelete from "../components/ModalDelete"
+
 const Hours = () => {
   const [hours,setHours] = useState([])
   const [loading,setLoading] = useState(false)
   const [date,setDate] = useState("")
-  const dateNow = new Date().toISOString().split("T")[0]
   const [hour,setHour] = useState("")
   const [showModal,setShowModal] = useState(false)
-  const navigate = useNavigate()
+  const [showModalDelete,setShowModalDelete] = useState(false)
+  const [hourIdToDelete,setHourIdToDelete] = useState(null)
 
+  const navigate = useNavigate()
+  const dateNow = new Date().toISOString().split("T")[0]
+  
   const fetchHours = async () => {
       const token = localStorage.getItem("barberToken");
       const barberId = localStorage.getItem("barberId");
@@ -92,7 +97,10 @@ const Hours = () => {
                     <td>{hour.disponivel ? "✅" : "❌"}</td>
                     <td className="d-flex gap-2">
                       <button className="btn btn-primary btn-sm">Editar</button>
-                      <button className="btn btn-danger btn-sm"><Trash2 size={22}/></button>
+                      <button className="btn btn-danger btn-sm" onClick={()=>{
+                          setShowModalDelete(true)
+                          setHourIdToDelete(hour.id)
+                        }}><Trash2 size={22}/></button>
                     </td>
                   </tr>
                 ))}
@@ -108,7 +116,7 @@ const Hours = () => {
 
         {/* Modal para criar nova hora */}
         {showModal && <>
-        <div className={`modal show d-block showModal`} id="newHourModal" tabIndex="-1" aria-labelledby="newHourModalLabel" aria-hidden="true" onClick={()=>setShowModal(false)}>
+        <div className="modal show d-block showModal" id="newHourModal" tabIndex="-1" aria-labelledby="newHourModalLabel" aria-hidden="true" onClick={()=>setShowModal(false)}>
           <div className="modal-dialog" onClick={(e)=>e.stopPropagation()}>
             <div className="modal-content">
               <div className="modal-header">
@@ -135,6 +143,8 @@ const Hours = () => {
         </div>
         <div className="modal-backdrop fade show" onClick={()=>setShowModal(false)}></div>
         </>}
+
+        {showModalDelete && <ModalDelete route="/hours" id={hourIdToDelete} setShowModalDelete={setShowModalDelete} setLoading={setLoading} fetch={fetchHours}/>}
     </div>
   )
 }

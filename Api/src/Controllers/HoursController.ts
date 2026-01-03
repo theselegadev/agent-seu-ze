@@ -34,4 +34,16 @@ export class HoursController implements ControllerInterface<HoursType>{
             return reply.status(500).send(Responses.error("Infelizemente ocorreu um erro ao buscar os horários"))
         }   
     }
+
+    delete = async(req: FastifyRequest, reply: FastifyReply): Promise<void> =>{
+        const id: number = (req.params as {id: number}).id
+        
+        try{
+            await this.model.delete(id)
+            return reply.status(200).send(Responses.success("Horário deletado com sucesso"))
+        }catch(err){
+            console.error("Ocorreu um erro ao deletar horário ",err)
+            return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao deletar horário"))
+        }
+    }
 }

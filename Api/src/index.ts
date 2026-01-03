@@ -20,7 +20,8 @@ const hoursController = new HoursController()
 const seuZe = new SeuZe();
 
 app.register(cors,{
-    origin: '*'
+    origin: '*',
+    methods: ['GET','POST','DELETE','PUT']
 })
 
 app.post('/barber',barberController.create);
@@ -31,6 +32,7 @@ app.get('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.find
 app.delete('/agenda/:idClient',{preHandler: AuthMiddleware.verifyToken},agendaController.delete)
 app.post('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.create)
 app.get('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
+app.delete('/hours/:id',{preHandler: AuthMiddleware.verifyToken},hoursController.delete)
 app.post('/prompt',seuZe.getPrompt)
 
 app.listen({ port: 3000 })

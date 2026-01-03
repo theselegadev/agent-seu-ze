@@ -49,4 +49,15 @@ export class Hours implements ModelsInterface<HoursType>{
             throw err
         }
     }
+
+    async delete(id: number): Promise<void>{
+        const sql = "DELETE FROM horarios_disponiveis WHERE id = ?";
+
+        try{
+            await db.execute(sql,[id]);
+        }catch(err){
+            console.error("Erro ao deletar horário: ", err)
+            throw err
+        }
+    }
 }
