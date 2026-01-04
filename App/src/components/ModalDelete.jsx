@@ -26,7 +26,7 @@ const ModalDelete = ({route,id,setShowModalDelete,setLoading,fetch}) => {
                         <p>Tem certeza que deseja deletar?</p>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={()=>setShowModalDelete(false)}>Close</button>
+                        <button type="button" className="btn btn-secondary" onClick={()=>setShowModalDelete(false)}>Fechar</button>
                         <button type="button" className="btn btn-danger" onClick={handleDelete}>Deletar</button>
                     </div>
                 </div>

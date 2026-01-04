@@ -7,6 +7,7 @@ import {Trash2} from "lucide-react"
 import "../assets/styles.css"
 
 import ModalDelete from "../components/ModalDelete"
+import ModalEditHour from "../components/ModalEditHour"
 
 const Hours = () => {
   const [hours,setHours] = useState([])
@@ -16,6 +17,10 @@ const Hours = () => {
   const [showModal,setShowModal] = useState(false)
   const [showModalDelete,setShowModalDelete] = useState(false)
   const [hourIdToDelete,setHourIdToDelete] = useState(null)
+  const [showModalEditHour,setShowModalEditHour] = useState(false)
+  const [dateEdit,setDateEdit] = useState(null)
+  const [availableEdit,setAvailableEdit] = useState(false)
+  const [timeEdit,setTimeEdit] = useState("")
 
   const navigate = useNavigate()
   const dateNow = new Date().toISOString().split("T")[0]
@@ -96,7 +101,12 @@ const Hours = () => {
                     <td>{FormatHour(hour.hora)}</td>
                     <td>{hour.disponivel ? "✅" : "❌"}</td>
                     <td className="d-flex gap-2">
-                      <button className="btn btn-primary btn-sm">Editar</button>
+                      <button className="btn btn-primary btn-sm" onClick={()=>{
+                          setShowModalEditHour(true)
+                          setDateEdit(hour.data)
+                          setTimeEdit(hour.hora)
+                          setAvailableEdit(hour.disponivel)
+                        }}>Editar</button>
                       <button className="btn btn-danger btn-sm" onClick={()=>{
                           setShowModalDelete(true)
                           setHourIdToDelete(hour.id)
@@ -145,6 +155,8 @@ const Hours = () => {
         </>}
 
         {showModalDelete && <ModalDelete route="/hours" id={hourIdToDelete} setShowModalDelete={setShowModalDelete} setLoading={setLoading} fetch={fetchHours}/>}
+
+        {showModalEditHour && <ModalEditHour setShowModalEditHour={setShowModalEditHour} date={dateEdit} time={timeEdit} available={availableEdit}/>}
     </div>
   )
 }
