@@ -33,6 +33,7 @@ app.delete('/agenda/:idClient',{preHandler: AuthMiddleware.verifyToken},agendaCo
 app.post('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.create)
 app.get('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
 app.delete('/hours/:id',{preHandler: AuthMiddleware.verifyToken},hoursController.delete)
+app.put('/hours/:id',{preHandler: AuthMiddleware.verifyToken},hoursController.update);
 app.post('/prompt',seuZe.getPrompt)
 
 app.listen({ port: 3000 })

@@ -21,6 +21,7 @@ const Hours = () => {
   const [dateEdit,setDateEdit] = useState(null)
   const [availableEdit,setAvailableEdit] = useState(false)
   const [timeEdit,setTimeEdit] = useState("")
+  const [hourIdToEdit,setHourIdToEdit] = useState(null)
 
   const navigate = useNavigate()
   const dateNow = new Date().toISOString().split("T")[0]
@@ -106,6 +107,7 @@ const Hours = () => {
                           setDateEdit(hour.data)
                           setTimeEdit(hour.hora)
                           setAvailableEdit(hour.disponivel)
+                          setHourIdToEdit(hour.id)
                         }}>Editar</button>
                       <button className="btn btn-danger btn-sm" onClick={()=>{
                           setShowModalDelete(true)
@@ -156,7 +158,7 @@ const Hours = () => {
 
         {showModalDelete && <ModalDelete route="/hours" id={hourIdToDelete} setShowModalDelete={setShowModalDelete} setLoading={setLoading} fetch={fetchHours}/>}
 
-        {showModalEditHour && <ModalEditHour setShowModalEditHour={setShowModalEditHour} date={dateEdit} time={timeEdit} available={availableEdit}/>}
+        {showModalEditHour && <ModalEditHour setShowModalEditHour={setShowModalEditHour} date={dateEdit} time={timeEdit} available={availableEdit} id={hourIdToEdit} setLoading={setLoading} fetch={fetchHours}/>}
     </div>
   )
 }

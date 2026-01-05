@@ -60,4 +60,15 @@ export class Hours implements ModelsInterface<HoursType>{
             throw err
         }
     }
+
+    async update(item: HoursType): Promise<void>{
+        const sql = "UPDATE horarios_disponiveis SET data = ?, hora = ?, disponivel = ? WHERE id = ? and id_barbeiro = ?";
+
+        try{
+            await db.execute(sql,[item.date,item.hour,item.available,item.id,item.idBarber]);
+        }catch(err){
+            console.error("Erro ao atualizar horário: ", err)
+            throw err
+        }
+    }
 }

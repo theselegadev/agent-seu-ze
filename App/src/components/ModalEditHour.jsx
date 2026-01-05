@@ -1,10 +1,31 @@
 import { useState } from 'react'
+import useRequest from '../hooks/useRequest';
 
-const ModalEditHour = ({setShowModalEditHour, date, time, available}) => {
+const ModalEditHour = ({setShowModalEditHour, date, time, available, id, setLoading, fetch}) => {
     const [newDate, setNewDate] = useState(date.split("T")[0]);
     const [newTime, setNewTime] = useState(time);
     const [isAvailable, setIsAvailable] = useState(available);
     const dateNow = new Date().toISOString().split("T")[0];
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const response = await useRequest(`/hours/${id}`, setLoading, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('barberToken')}`,
+            },
+            body: JSON.stringify({
+                date: newDate,
+                hour: newTime,
+                available: isAvailable
+            }),
+        });
+
+        setShowModalEditHour(false);
+        fetch();
+    }
 
   return (
     <>
@@ -16,7 +37,7 @@ const ModalEditHour = ({setShowModalEditHour, date, time, available}) => {
                         <button type="button" className="btn-close" data-bs-dismiss="modal" onClick={()=>setShowModalEditHour(false)}></button>
                     </div>
                     <div className="modal-body">
-                        <form>
+                        <form onSubmit={handleSubmit}>
                             <div className="mb-3">
                                 <label htmlFor="exampleFormControlInput1" className="form-label">Data:</label>
                                 <input type="date" className="form-control" value={newDate} onChange={(e)=>setNewDate(e.target.value)} min={dateNow}/>

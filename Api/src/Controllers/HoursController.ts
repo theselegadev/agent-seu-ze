@@ -10,6 +10,7 @@ export class HoursController implements ControllerInterface<HoursType>{
     create = async(req: FastifyRequest, reply: FastifyReply): Promise<void> =>{
         const body = req.body as HoursType
         body.idBarber = req.idBarber
+
         try{
             await this.model.create(body)
             return reply.status(201).send(Responses.success("Horário cadastrado com sucesso"))
@@ -44,6 +45,28 @@ export class HoursController implements ControllerInterface<HoursType>{
         }catch(err){
             console.error("Ocorreu um erro ao deletar horário ",err)
             return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao deletar horário"))
+        }
+    }
+
+    update = async(req: FastifyRequest, reply: FastifyReply): Promise<void> => {
+        const body = req.body as {date: string, hour: string, available: boolean}
+        const id: number = (req.params as {id: number}).id
+        const today = new Date().toISOString().substring(0, 10);
+        const now = new Date().toTimeString().slice(0,5);
+
+
+        if(body.date.substring(0,10) < today)
+            return reply.status(400).send(Responses.error("Não é possível atualizar para uma data passada"))
+
+        if(body.hour < now && body.date.substring(0,10) === today)
+            return reply.status(400).send(Responses.error("Não é possível atualizar para um horário passado"))
+
+        try{
+            await this.model.update({...body, id, idBarber: req.idBarber})
+            return reply.status(200).send(Responses.success("Horário atualizado com sucesso"))
+        }catch(err){
+            console.error("Ocorreu um erro ao atualizar horário ",err)
+            return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao atualizar horário"))
         }
     }
 }
