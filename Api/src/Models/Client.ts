@@ -36,5 +36,17 @@ export class Client implements ModelsInterface<ClientType> {
             console.error("Ocorreu algum erro ao encontrar cliente ", err)
             return null
         }
-    }   
+    }
+    
+    getAllByBarber = async (idBarber: number): Promise<ClientType[]> => {
+        const sql = `SELECT * FROM cliente WHERE id_barbeiro = ?`;
+
+        try{
+            const [rows] = await db.execute(sql,[idBarber])
+            return rows as ClientType[]
+        }catch(err){
+            console.error("Ocorreu algum erro ao listar clientes ", err)
+            throw err
+        }
+    }
 }

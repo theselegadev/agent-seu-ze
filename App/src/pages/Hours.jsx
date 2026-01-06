@@ -73,6 +73,7 @@ const Hours = () => {
   return (
     <div className="vh-100 vw-100">
         <Header/>
+        
         {loading &&
         <div className="d-flex flex-column justify-content-center align-items-center gap-5" style={{position: "absolute",transform: "translate(-50%)",top: "50%",left: "50%"}}>
             <div className="spinner-border text-primary" role="status">

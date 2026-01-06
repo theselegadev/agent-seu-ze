@@ -34,6 +34,8 @@ app.post('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.creat
 app.get('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
 app.delete('/hours/:id',{preHandler: AuthMiddleware.verifyToken},hoursController.delete)
 app.put('/hours/:id',{preHandler: AuthMiddleware.verifyToken},hoursController.update);
+app.get('/clients',{preHandler: AuthMiddleware.verifyToken},clientController.getAllbyBarber);
+app.post('/clients',{preHandler: AuthMiddleware.verifyToken},clientController.create);
 app.post('/prompt',seuZe.getPrompt)
 
 app.listen({ port: 3000 })
