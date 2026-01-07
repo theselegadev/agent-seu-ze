@@ -1,4 +1,4 @@
-import { Link, redirect } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import useRequest from "../hooks/useRequest"
 
@@ -8,21 +8,21 @@ const Cadaster = () => {
     const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [loading,setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const payload = { name, telefone: phone, address, password };
 
         try {
-            const data = await useRequest("/barber", setLoading, {
+            const response = await useRequest("/barber", setLoading, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-            
-            localStorage.setItem("barberId", data.barberId);
-            localStorage.setItem("barberToken", data.token);
-            redirect("/")
+
+            localStorage.setItem("barberToken", response.data[0].token);
+            navigate("/home")
         } catch (error) {
             console.error("Error registering user:", error);
         }
