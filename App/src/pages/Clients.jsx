@@ -3,12 +3,13 @@ import { Trash2 } from "lucide-react";
 import useRequest from "../hooks/useRequest";
 
 import Header from "../components/Header"
+import ModalCreateUser from "../components/ModalCreateUser";
 
 
 const Clients = () => {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
-
+  const [showModalCreateUser, setShowModalCreateUser] = useState(false);
 
   const fetchClients = async () => {
     const response = await useRequest("/clients", setLoading, {
@@ -42,7 +43,7 @@ const Clients = () => {
           <div className="card col-11 col-lg-9 m-auto mt-5 shadow-sm">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h3>Clientes</h3>
-              <button className="btn btn-success btn-sm">Novo</button>
+              <button className="btn btn-success btn-sm" onClick={() => setShowModalCreateUser(true)}>Novo</button>
             </div>
             <div className="card-body">
               <table className="table table-striped">
@@ -74,6 +75,8 @@ const Clients = () => {
             </div>
           </div>
         }
+
+        {showModalCreateUser && <ModalCreateUser setShowModal={setShowModalCreateUser} fetch={fetchClients} setLoading={setLoading}/>}
     </>
   )
 }
