@@ -26,16 +26,20 @@ app.register(cors,{
 
 app.post('/barber',barberController.create);
 app.post('/barber/login',barberController.login);
-app.post('/client',{preHandler: AuthMiddleware.verifyToken},clientController.create);
+
 app.post('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.create);
 app.get('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.findAll);
 app.delete('/agenda/:idClient',{preHandler: AuthMiddleware.verifyToken},agendaController.delete)
+
 app.post('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.create)
 app.get('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
 app.delete('/hours/:id',{preHandler: AuthMiddleware.verifyToken},hoursController.delete)
 app.put('/hours/:id',{preHandler: AuthMiddleware.verifyToken},hoursController.update);
+
 app.get('/clients',{preHandler: AuthMiddleware.verifyToken},clientController.getAllbyBarber);
 app.post('/clients',{preHandler: AuthMiddleware.verifyToken},clientController.create);
+app.put('/clients/:id',{preHandler: AuthMiddleware.verifyToken},clientController.update);
+
 app.post('/prompt',seuZe.getPrompt)
 
 app.listen({ port: 3000 })

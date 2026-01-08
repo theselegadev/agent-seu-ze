@@ -36,6 +36,15 @@ export class ClientController implements ControllerInterface<ClientType> {
     }
 
     update = async(req: FastifyRequest, reply: FastifyReply): Promise<void> =>{
-        
+        const id: number = (req.params as {id: number}).id;
+        const data: ClientType = {...req.body as ClientType,id, idBarber: req.idBarber};
+
+        try{
+            await this.model.update(data)
+            return reply.status(200).send(Responses.success("Cliente atualizado com sucesso"));
+        }catch(err){
+            console.error("Erro ao atualizar cliente:", err);
+            return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao atualizar o cliente"));
+        }   
     }
 }

@@ -49,4 +49,15 @@ export class Client implements ModelsInterface<ClientType> {
             throw err
         }
     }
+
+    update = async(client: ClientType): Promise<void> =>{
+        const sql = `UPDATE cliente SET nome = ?, telefone = ? WHERE id = ? and id_barbeiro = ?`;
+
+        try{ 
+            await db.execute(sql, [client.name, client.telefone, client.id, client.idBarber]);
+        }catch(err){
+            console.error("Erro ao atualizar cliente:", err);
+            throw err;
+        }
+    }
 }

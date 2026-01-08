@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
 import useRequest from "../hooks/useRequest";
 
 import Header from "../components/Header"
 import ModalCreateUser from "../components/ModalCreateUser";
+import ModalEditClient from "../components/ModalEditClient";
 
 
 const Clients = () => {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [showModalCreateUser, setShowModalCreateUser] = useState(false);
+  const [showModalEditClient, setShowModalEditClient] = useState(false);
+  const [clientToEdit, setClientToEdit] = useState(null);
 
   const fetchClients = async () => {
     const response = await useRequest("/clients", setLoading, {
@@ -59,9 +61,11 @@ const Clients = () => {
                     <tr key={client.id}>
                       <td>{client.nome}</td>
                       <td>{client.telefone}</td>
-                      <td className="d-flex gap-2">
-                        <button className="btn btn-primary btn-sm">Editar</button>
-                        <button className="btn btn-danger btn-sm"><Trash2 size={22} /></button>
+                      <td>
+                        <button className="btn btn-primary btn-sm" onClick={()=>{
+                            setShowModalEditClient(true)
+                            setClientToEdit(client)
+                          }}>Editar</button>
                       </td>
                     </tr>
                   ))}
@@ -77,6 +81,8 @@ const Clients = () => {
         }
 
         {showModalCreateUser && <ModalCreateUser setShowModal={setShowModalCreateUser} fetch={fetchClients} setLoading={setLoading}/>}
+
+        {showModalEditClient && <ModalEditClient setShowModalEditClient={setShowModalEditClient} client={clientToEdit} setLoading={setLoading} fetch={fetchClients}/>}
     </>
   )
 }
