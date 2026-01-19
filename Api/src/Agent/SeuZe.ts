@@ -7,6 +7,8 @@ import { Responses } from "../Utils/Responses.js";
 import { Tools } from "./Tools/Tools.js";
 import { SessionManager } from "../Utils/Session.js";
 
+
+
 const sessionManager = new SessionManager()
 const client = new Client()
 
@@ -213,12 +215,22 @@ export class SeuZe{
             if(call.type === "function" && call.function.name === "find_barber"){
                 const args = JSON.parse(call.function.arguments!)
 
-                const res = await Tools.findBarber(args.idBarber)
-                sessionManager.set(telefone,{idBarber: args.idBarber, nameBarber: res.nameBarber, step: "criar_cliente"})
+                try{
+                    const res = await Tools.findBarber(args.idBarber)
 
-                const Secondresponse = await this.secondRequest(msg,call,{status: true},`O barbeiro foi identificado com o nome de ${res.nameBarber} e você é o agente assistente dele, peça agora de forma carismática e curta o nome do cliente para fazer o agendamento`)
+                    if(!res)
+                        return reply.status(404).send(Responses.error("Barbeiro não encontrado via SeuZé"));
 
-                return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string))
+                    sessionManager.set(telefone,{idBarber: args.idBarber, nameBarber: res.nameBarber, step: "criar_cliente"})
+
+                    const Secondresponse = await this.secondRequest(msg,call,{status: true},`O barbeiro foi identificado com o nome de ${res.nameBarber} e você é o agente assistente dele, peça agora de forma carismática e curta o nome do cliente para fazer o agendamento`)
+    
+                    return reply.status(200).send(Responses.success(Secondresponse.choices[0].message.content as string))
+                }catch(err){
+                    console.error("Erro ao encontrar barbeiro via SeuZé:", err);
+                    return reply.status(500).send(Responses.error("Ocorreu algum erro ao encontrar o barbeiro via SeuZé")); 
+                } 
+
             }
             
             if(call.type === "function" && call.function.name === "create_client"){

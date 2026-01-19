@@ -28,4 +28,15 @@ export class BarberController implements ControllerInterface<BarberType> {
         const token = Jwt.generateToken({name: req.body.name, idBarber: res as number}, process.env.JWT_SECRET as string);
         return reply.status(200).send(Responses.success("Login relizado com sucesso",[{token}]));
     }
+
+    get = async (req: FastifyRequest, reply: FastifyReply): Promise<BarberType> => {
+        const id: number = req.idBarber;
+        try{
+            const res: BarberType = await this.model.find(id);
+            return reply.status(200).send(Responses.success("Barbeiro encontrado", [res]));
+        }catch(err){
+            console.error("Erro ao encontrar barbeiro", err);
+            return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao encontrar barbeiro"));
+        }
+    }
 }

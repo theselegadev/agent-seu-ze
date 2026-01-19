@@ -26,6 +26,7 @@ app.register(cors,{
 
 app.post('/barber',barberController.create);
 app.post('/barber/login',barberController.login);
+app.get('/barber',{preHandler: AuthMiddleware.verifyToken},barberController.get);
 
 app.post('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.create);
 app.get('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.findAll);

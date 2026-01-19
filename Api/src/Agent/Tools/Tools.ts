@@ -3,6 +3,7 @@ import { Client } from "../../Models/Client.js";
 import { Barber } from "../../Models/Barber.js";
 import { Hours } from "../../Models/Hours.js";
 import {Client as ClientType} from "../../Utils/Types.js"
+import {Barber as BarberType} from "../../Utils/Types.js"
 
 const agenda = new Agenda()
 const client = new Client()
@@ -41,13 +42,13 @@ export class Tools{
         }
     }
 
-    static async findBarber(idBarber: number): Promise<any>{
-        const res = await barber.find(idBarber)
+    static async findBarber(idBarber: number): Promise<{idBarber: number, nameBarber: string} | null>{
+        const res: BarberType = await barber.find(idBarber)
         
         if(!res)
-            return false
+            return null;
 
-        return res
+        return {idBarber: res.id as number, nameBarber: res.name}
     }
 
     static async findHoursAvailable(barberId: number, date: string): Promise<object[]>{
