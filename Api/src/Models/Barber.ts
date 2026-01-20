@@ -34,8 +34,16 @@ class Barber implements ModelsInterface<BarberType> {
     }
 
     async update(data: BarberType): Promise<void> {
+        const sql: string = "UPDATE barbeiro SET nome = ?, telefone = ?, endereco = ? WHERE id = ?";
 
+        try{
+            await db.execute(sql, [data.name, data.telefone, data.address, data.id]);
+        }catch(err){
+            console.error("Erro ao atualizar barbeiro: ", err);
+            throw err;
+        }
     }
+    
     async login(name: string, password: string): Promise<number | boolean> {
         const sql: string = "SELECT id,senha FROM barbeiro WHERE nome = ?";
 

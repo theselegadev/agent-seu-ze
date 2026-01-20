@@ -39,4 +39,17 @@ export class BarberController implements ControllerInterface<BarberType> {
             return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao encontrar barbeiro"));
         }
     }
+
+    update = async(req: FastifyRequest, reply: FastifyReply): Promise<void> =>{
+        const body: BarberType = req.body as BarberType;
+        body.id = req.idBarber;
+
+        try{
+            await this.model.update(body)
+            return reply.status(200).send(Responses.success("Dados atualizados com sucesso"))
+        }catch(err){
+            console.log("Erro ao atualizar os dados ", err)
+            return reply.status(500).send(Responses.error("Erro ao atualizar dados"))
+        }
+    }
 }
