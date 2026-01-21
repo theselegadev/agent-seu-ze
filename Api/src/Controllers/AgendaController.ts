@@ -25,10 +25,6 @@ export class AgendaController implements ControllerInterface<AgendaType> {
     findAll = async (req: FastifyRequest, reply: FastifyReply): Promise<AgendaInfo[] | any> => {
         const idBarber: number = req.idBarber
 
-        if(!idBarber){
-            return reply.status(400).send(Responses.error("O ID do barbeiro é obrigatório"));
-        }
-
         try{
             const agendas = await this.model.findAll<AgendaInfo>(idBarber);
 
