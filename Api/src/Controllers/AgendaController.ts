@@ -53,4 +53,17 @@ export class AgendaController implements ControllerInterface<AgendaType> {
             return reply.status(500).send(Responses.error("Infelizmente ocorreu um erro ao desagendar"))
         }
     }
+
+    update = async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
+        const idBarber: number = req.idBarber
+        const body: AgendaType = {...(req.body as {idClient: number, datetime: string, id: number}), idBarber}
+
+        try{
+            await this.model.update(body)
+            return reply.status(200).send(Responses.success("Agenda atualizada com sucesso"))
+        }catch(err){
+            console.error("Erro ao atualizar agenda: ", err)
+            return reply.status(500).send(Responses.error("Ocorreu algum erro ao atualizar a agenda"))
+        }
+    }
 }

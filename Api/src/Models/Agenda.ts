@@ -49,6 +49,17 @@ export class Agenda implements ModelsInterface<AgendaType> {
         }
     }
 
+    async update(entity: AgendaType): Promise<void> {
+        const sql = `UPDATE agenda SET id_cliente = ?, data = ? WHERE id_barbeiro = ? AND id = ?`
+
+        try{
+            await db.execute(sql,[entity.idClient,entity.datetime,entity.idBarber, entity.id])
+        }catch(err){
+            console.error("Erro ao atualizar agenda: ", err)
+            throw err
+        }
+    }
+
     async findAll<AgendaInfo>(idBarber: number): Promise<AgendaInfo[] | any> {
         const sql = `SELECT c.nome, c.telefone, a.data FROM agenda a INNER JOIN cliente c ON a.id_cliente = c.id WHERE a.id_barbeiro = ?`;
 
