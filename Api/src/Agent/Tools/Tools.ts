@@ -13,7 +13,7 @@ const hours = new Hours()
 export class Tools{
     static async createAgenda(idClient: number,dateTime: string,idBaber: number){
         try{
-            const res = await agenda.create({client_id: idClient,datetime: dateTime,idBarber: idBaber})
+            const res = await agenda.create({idClient,datetime: dateTime,idBarber: idBaber})
             return res  
         }catch(err){
             console.error("Erro ao criar agenda via ferramenta:", err);
@@ -22,7 +22,6 @@ export class Tools{
     }
 
     static async deleteSchedule(idClient: number, idBarber: number){
-        console.log("entrou aqui")
         try{
             await agenda.delete(idClient,idBarber);
         }catch(err){

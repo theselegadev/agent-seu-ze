@@ -15,7 +15,7 @@ export type Client = {
 
 export type Agenda = {
     id?: number,
-    client_id: number,
+    idClient: number,
     idBarber: number,
     datetime: string,
 }

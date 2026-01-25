@@ -23,11 +23,18 @@ const Clients = () => {
 
     if(response.status == "success"){
       setClients(response.data);
+      localStorage.setItem("clients",JSON.stringify(response.data))
     }
   }
 
   useEffect(()=>{
-    fetchClients()
+    const clientsData = localStorage.getItem("clients")
+
+    if(!clientsData){
+      fetchClients()
+    }else{
+      setClients(JSON.parse(clientsData))
+    }
   },[])
 
   return (

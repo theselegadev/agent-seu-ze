@@ -37,7 +37,7 @@ export class Agenda implements ModelsInterface<AgendaType> {
         const sql = `INSERT INTO agenda (id_barbeiro, id_cliente, data) VALUES (?,?,?)`;
 
         try{
-            await db.execute(sql, [agenda.idBarber, agenda.client_id, agenda.datetime]);
+            await db.execute(sql, [agenda.idBarber, agenda.idClient, agenda.datetime]);
 
             const sqlUpdate = `UPDATE horarios_disponiveis SET disponivel = 0 WHERE data = ? AND hora = ? AND id_barbeiro = ?`;
             

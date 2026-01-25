@@ -5,7 +5,9 @@ const ModalEditHour = ({setShowModalEditHour, date, time, available, id, setLoad
     const [newDate, setNewDate] = useState(date.split("T")[0]);
     const [newTime, setNewTime] = useState(time);
     const [isAvailable, setIsAvailable] = useState(available);
-    const dateNow = new Date().toISOString().split("T")[0];
+    const dateNow = new Date().toLocaleDateString("sv-SE", {
+        timeZone: "America/Sao_Paulo"
+    })
 
     const handleSubmit = async (e) => {
         e.preventDefault();

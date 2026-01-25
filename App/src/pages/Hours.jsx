@@ -24,7 +24,9 @@ const Hours = () => {
   const [hourIdToEdit,setHourIdToEdit] = useState(null)
 
   const navigate = useNavigate()
-  const dateNow = new Date().toISOString().split("T")[0]
+  const dateNow = new Date().toLocaleDateString("sv-SE", {
+    timeZone: "America/Sao_Paulo"
+  })
   
   const fetchHours = async () => {
       const token = localStorage.getItem("barberToken");
@@ -140,7 +142,7 @@ const Hours = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="mb-3">
                     <label htmlFor="date">Data:</label>
-                    <input type="date" id="date" min={new Date().toISOString().split("T")[0]} name="date" className="form-control" required onChange={(e) => setDate(e.target.value)}/>
+                    <input type="date" id="date" min={dateNow} name="date" className="form-control" required onChange={(e) => setDate(e.target.value)}/>
                   </div>
                   <div className="mb-3">
                     <label htmlFor="hour">Hora:</label>

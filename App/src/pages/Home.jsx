@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react"
 import Header from "../components/Header.jsx"
 import useRequest from "../hooks/useRequest.js"
+import ModalCreateAgenda from "../components/ModalCreateAgenda.jsx"
+import { Trash2 } from "lucide-react"
 
 const Home = () => {
   const [loading,setLoading] = useState(false)
   const [dataAgenda,setDataAgenda] = useState([])
+  const [showModalCreateAgenda,setShowModalCreateAgenda] = useState(false)
+  const [dateTimesAvailable,setDateTimesAvailable] = useState([])
 
   const fetchData = async ()=>{
     const response = await useRequest("/agenda",setLoading,{
       method: "GET",
       headers: {
-        "Content-Type":"application/json",
         "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
       }
     })
@@ -18,8 +21,34 @@ const Home = () => {
     setDataAgenda(response.data)
   }
 
+  const fetchHours = async ()=>{
+    const response = await useRequest("/hours",setLoading,{
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+      }
+    })
+    
+    const hours = response.data
+    const hoursAvailable = hours.filter(item => item.disponivel == 1)
+
+    if(hoursAvailable){
+      hoursAvailable.map(hour => {
+        setDateTimesAvailable(prev=>
+          [...prev, {
+            date: new Date(hour.data).toLocaleDateString("sv-SE",{
+              timeZone: "America/Sao_Paulo"
+            }),
+            time: hour.hora.slice(0,5)
+          }]
+        )
+      })
+    }
+  }
+
   useEffect(()=>{
     fetchData()
+    fetchHours()
   },[])
 
   return (
@@ -36,19 +65,30 @@ const Home = () => {
         {!loading &&
           <div className="card col-11 col-lg-9 m-auto mt-5 shadow-sm">
             <div className="card-header d-flex justify-content-between align-items-center">
-              <h3>Agenda: </h3>
+              <h3>Agenda</h3>
+              <button className="btn btn-success btn-sm" onClick={() => dateTimesAvailable.length > 0 ? setShowModalCreateAgenda(true) : alert("Não há nenhum horário disponível cadastrado para agendamento")}>Novo</button>
             </div>
             <div className="card-body">
               <table className="table table-striped">
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>Tel</th>
                     <th>Data</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  
+                  {dataAgenda.map(item=>(
+                    <tr>
+                      <td>{item.nome}</td>
+                      <td>{new Date(item.data).toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit"})+" "+new Date(item.data).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",hour12:false})
+                      }</td>
+                      <td className="d-flex gap-2">
+                        <button className="btn btn-primary btn-sm">Editar</button>
+                        <button className="btn btn-danger btn-sm"><Trash2 size={22}/></button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
               {dataAgenda.length == 0 && 
@@ -59,6 +99,8 @@ const Home = () => {
             </div>
           </div>
         }
+
+        {showModalCreateAgenda && <ModalCreateAgenda setShowModal={setShowModalCreateAgenda} fetch={fetchData} setLoading={setLoading} dateTimesAvailable={dateTimesAvailable}/>}
     </>
   )
 }
