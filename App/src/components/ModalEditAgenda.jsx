@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FormatIsoInDateAndTime } from "../Utils/Format";
 import useRequest from "../hooks/useRequest";
 
-const ModalEditAgenda = ({agenda, setShowModal, setLoading, fetch}) => {
+const ModalEditAgenda = ({agenda, setShowModal, setLoading, fetch, dateTimesAvailable}) => {
     const [clients,setClients] = useState([])
     const {date, time} = FormatIsoInDateAndTime(agenda.datetime)
     const [newDate,setNewDate] = useState(date)
@@ -41,18 +41,25 @@ const ModalEditAgenda = ({agenda, setShowModal, setLoading, fetch}) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const response = await useRequest("/agenda",setLoading,{
-            method: "PUT",
-            headers: {
-                "Content-Type":"application/json",
-                "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
-            },
-            body: JSON.stringify({id: agenda.id, idClient: newIdClient, datetime: newDate + " " + newTime})
-        })
-
-        if(response.status == "success")
-            fetch()
-        setShowModal(false)
+        const isDateAvailable = dateTimesAvailable.some(item => item.date === newDate)
+        const isTimeAvailable = dateTimesAvailable.some(item=> item.time === newTime)
+        console.log(isDateAvailable,isTimeAvailable)
+        if(isDateAvailable && isTimeAvailable){
+            const response = await useRequest("/agenda",setLoading,{
+                method: "PUT",
+                headers: {
+                    "Content-Type":"application/json",
+                    "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
+                },
+                body: JSON.stringify({id: agenda.id, idClient: newIdClient, datetime: newDate + " " + newTime})
+            })
+    
+            if(response.status == "success")
+                fetch()
+            setShowModal(false)
+        }else{
+            alert("Data ou horário escolhidos não estão disponíveis, confira seus horários")
+        }
     }
 
   return (

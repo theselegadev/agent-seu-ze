@@ -88,8 +88,12 @@ const Home = () => {
                       }</td>
                       <td className="d-flex gap-2">
                         <button className="btn btn-primary btn-sm" onClick={()=>{
-                            setShowModalEditAgenda(true)
-                            setAgenda({id: item.id,idClient: item.id_cliente, nome: item.nome, datetime: item.data})
+                            if(dateTimesAvailable.length > 0){
+                              setShowModalEditAgenda(true)
+                              setAgenda({id: item.id,idClient: item.id_cliente, nome: item.nome, datetime: item.data})
+                            }else{
+                              alert("Não há nenhum horário disponível para atualização do agendamento")
+                            }
                           }}>Editar</button>
                         <button className="btn btn-danger btn-sm"><Trash2 size={22}/></button>
                       </td>
@@ -108,7 +112,7 @@ const Home = () => {
 
         {showModalCreateAgenda && <ModalCreateAgenda setShowModal={setShowModalCreateAgenda} fetch={fetchData} setLoading={setLoading} dateTimesAvailable={dateTimesAvailable}/>}
 
-        {showModalEditAgenda && <ModalEditAgenda setShowModal={setShowModalEditAgenda} agenda={agenda} setLoading={setLoading} fetch={fetchData}/>}
+        {showModalEditAgenda && <ModalEditAgenda setShowModal={setShowModalEditAgenda} agenda={agenda} setLoading={setLoading} fetch={fetchData} dateTimesAvailable={dateTimesAvailable}/>}
     </>
   )
 }
