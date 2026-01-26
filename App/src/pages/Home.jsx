@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import Header from "../components/Header.jsx"
 import useRequest from "../hooks/useRequest.js"
 import ModalCreateAgenda from "../components/ModalCreateAgenda.jsx"
+import ModalEditAgenda from "../components/ModalEditAgenda.jsx"
 import { Trash2 } from "lucide-react"
 
 const Home = () => {
@@ -9,6 +10,8 @@ const Home = () => {
   const [dataAgenda,setDataAgenda] = useState([])
   const [showModalCreateAgenda,setShowModalCreateAgenda] = useState(false)
   const [dateTimesAvailable,setDateTimesAvailable] = useState([])
+  const [showModalEditAgenda,setShowModalEditAgenda] = useState(false)
+  const [agenda,setAgenda] = useState({})
 
   const fetchData = async ()=>{
     const response = await useRequest("/agenda",setLoading,{
@@ -84,7 +87,10 @@ const Home = () => {
                       <td>{new Date(item.data).toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit"})+" "+new Date(item.data).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",hour12:false})
                       }</td>
                       <td className="d-flex gap-2">
-                        <button className="btn btn-primary btn-sm">Editar</button>
+                        <button className="btn btn-primary btn-sm" onClick={()=>{
+                            setShowModalEditAgenda(true)
+                            setAgenda({id: item.id,idClient: item.id_cliente, nome: item.nome, datetime: item.data})
+                          }}>Editar</button>
                         <button className="btn btn-danger btn-sm"><Trash2 size={22}/></button>
                       </td>
                     </tr>
@@ -101,6 +107,8 @@ const Home = () => {
         }
 
         {showModalCreateAgenda && <ModalCreateAgenda setShowModal={setShowModalCreateAgenda} fetch={fetchData} setLoading={setLoading} dateTimesAvailable={dateTimesAvailable}/>}
+
+        {showModalEditAgenda && <ModalEditAgenda setShowModal={setShowModalEditAgenda} agenda={agenda} setLoading={setLoading} fetch={fetchData}/>}
     </>
   )
 }

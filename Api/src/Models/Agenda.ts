@@ -2,6 +2,7 @@ import { ModelsInterface } from "../Utils/interfaces/ModelsInterface.js";
 import { Agenda as AgendaType } from "../Utils/Types.js";
 import { AgendaWithClientInfo as AgendaInfo } from "../Utils/Types.js";
 import { db } from "../config/db.js";
+import { DateValidator } from "../Utils/DateValidator.js";
 
 export class Agenda implements ModelsInterface<AgendaType> {
 
@@ -17,16 +18,8 @@ export class Agenda implements ModelsInterface<AgendaType> {
         }
     }
 
-    async create(agenda: AgendaType): Promise<boolean> {
-        const now = new Date().toLocaleString("sv-SE",{
-            timeZone: "America/Sao_Paulo",
-            hour12: false
-        }).replace(/\./g,":")
-        
-        const dateNow = new Date(now.replace(" ","T"))
-        const dateAgenda = new Date(agenda.datetime.replace(" ","T"))
-
-        if(dateAgenda < dateNow)
+    async create(agenda: AgendaType): Promise<boolean> {        
+        if(!DateValidator.isAfterNow(agenda.datetime))
             return false;
 
         const [date, time] = agenda.datetime.split(" ");
@@ -49,11 +42,25 @@ export class Agenda implements ModelsInterface<AgendaType> {
         }
     }
 
-    async update(entity: AgendaType): Promise<void> {
+    async update(entity: AgendaType): Promise<boolean> {
+        if(!DateValidator.isAfterNow(entity.datetime))
+            return false;
+
+        const [date, time] = entity.datetime.split(" ");
+        const res = await this.verifyDateTime(date, time, entity.idBarber)
+
+        if(!res) return false
+
         const sql = `UPDATE agenda SET id_cliente = ?, data = ? WHERE id_barbeiro = ? AND id = ?`
 
         try{
             await db.execute(sql,[entity.idClient,entity.datetime,entity.idBarber, entity.id])
+
+            const sqlUpdate = `UPDATE horarios_disponiveis SET disponivel = 0 WHERE data = ? AND hora = ? AND id_barbeiro = ?`;
+            
+            await db.execute(sqlUpdate, [date, time, entity.idBarber]);
+
+            return true
         }catch(err){
             console.error("Erro ao atualizar agenda: ", err)
             throw err
@@ -61,7 +68,7 @@ export class Agenda implements ModelsInterface<AgendaType> {
     }
 
     async findAll<AgendaInfo>(idBarber: number): Promise<AgendaInfo[] | any> {
-        const sql = `SELECT c.nome, c.telefone, a.data FROM agenda a INNER JOIN cliente c ON a.id_cliente = c.id WHERE a.id_barbeiro = ?`;
+        const sql = `SELECT a.id ,c.id as id_cliente, c.nome, c.telefone, a.data FROM agenda a INNER JOIN cliente c ON a.id_cliente = c.id WHERE a.id_barbeiro = ?`;
 
         try{
             const [rows] = await db.execute(sql, [idBarber]);

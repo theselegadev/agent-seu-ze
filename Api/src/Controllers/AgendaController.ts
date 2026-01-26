@@ -59,7 +59,11 @@ export class AgendaController implements ControllerInterface<AgendaType> {
         const body: AgendaType = {...(req.body as {idClient: number, datetime: string, id: number}), idBarber}
 
         try{
-            await this.model.update(body)
+            const res = await this.model.update(body)
+            
+            if(!res)
+                return reply.status(500).send(Responses.error("Infelizmente esse horário está indisponível para atualização da agenda"))
+
             return reply.status(200).send(Responses.success("Agenda atualizada com sucesso"))
         }catch(err){
             console.error("Erro ao atualizar agenda: ", err)
