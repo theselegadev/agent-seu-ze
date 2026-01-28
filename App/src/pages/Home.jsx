@@ -3,6 +3,7 @@ import Header from "../components/Header.jsx"
 import useRequest from "../hooks/useRequest.js"
 import ModalCreateAgenda from "../components/ModalCreateAgenda.jsx"
 import ModalEditAgenda from "../components/ModalEditAgenda.jsx"
+import ModalDelete from "../components/ModalDelete.jsx"
 import { Trash2 } from "lucide-react"
 
 const Home = () => {
@@ -11,7 +12,10 @@ const Home = () => {
   const [showModalCreateAgenda,setShowModalCreateAgenda] = useState(false)
   const [dateTimesAvailable,setDateTimesAvailable] = useState([])
   const [showModalEditAgenda,setShowModalEditAgenda] = useState(false)
+  const [showModalDelete,setShowModalDelete] = useState(false)
   const [agenda,setAgenda] = useState({})
+  const [idClient,setIdClient] = useState()
+  const [idAgenda,setIdAgenda] = useState()
 
   const fetchData = async ()=>{
     const response = await useRequest("/agenda",setLoading,{
@@ -95,7 +99,11 @@ const Home = () => {
                               alert("Não há nenhum horário disponível para atualização do agendamento")
                             }
                           }}>Editar</button>
-                        <button className="btn btn-danger btn-sm"><Trash2 size={22}/></button>
+                        <button className="btn btn-danger btn-sm" onClick={()=>{
+                          setShowModalDelete(true)
+                          setIdClient(item.id_cliente)
+                          setIdAgenda(item.id)
+                        }}><Trash2 size={22}/></button>
                       </td>
                     </tr>
                   ))}
@@ -113,6 +121,8 @@ const Home = () => {
         {showModalCreateAgenda && <ModalCreateAgenda setShowModal={setShowModalCreateAgenda} fetch={fetchData} setLoading={setLoading} dateTimesAvailable={dateTimesAvailable}/>}
 
         {showModalEditAgenda && <ModalEditAgenda setShowModal={setShowModalEditAgenda} agenda={agenda} setLoading={setLoading} fetch={fetchData} dateTimesAvailable={dateTimesAvailable}/>}
+
+      {showModalDelete && <ModalDelete route="/agenda" id={`${idClient}/${idAgenda}`} fetch={fetchData} setLoading={setLoading} setShowModalDelete={setShowModalDelete}/>}
     </>
   )
 }

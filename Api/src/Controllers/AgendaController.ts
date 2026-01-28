@@ -44,9 +44,9 @@ export class AgendaController implements ControllerInterface<AgendaType> {
     delete = async(req: FastifyRequest,reply: FastifyReply): Promise<void> =>{
         try{
             const idBarber: number = req.idBarber
-            const idClient: number = (req.params as {idClient: number}).idClient
+            const params = req.params as {idClient: number, id: number}
             
-            await this.model.delete(idClient, idBarber);
+            await this.model.delete(params.idClient, idBarber, params.id);
             return reply.status(200).send(Responses.success("Agendamento desmarcado com sucesso"))
         }catch(err){
             console.error("Erro ao deletar agenda ", err)

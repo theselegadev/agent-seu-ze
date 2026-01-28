@@ -79,11 +79,14 @@ export class Agenda implements ModelsInterface<AgendaType> {
         }
     }
 
-    async delete(idClient: number, idBarber: number): Promise<void>{
-        const sql = "DELETE FROM agenda WHERE id_cliente = ? AND id_barbeiro = ?";
+    async delete(idClient: number, idBarber: number, id: number | null = null): Promise<void>{
+        const sql = `DELETE FROM agenda WHERE id_cliente = ? AND id_barbeiro = ? ${id ? "AND id = ?" : ""}`;
+        const params: number[] = [idClient,idBarber]
+        
+        if(id) params.push(id)
 
         try{
-            await db.execute(sql,[idClient,idBarber])
+            await db.execute(sql,[idClient,idBarber, id])
             return
         }catch(err){
             console.error("Erro ao desagendar ", err)

@@ -32,7 +32,7 @@ app.put('/barber',{preHandler: AuthMiddleware.verifyToken},barberController.upda
 app.post('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.create);
 app.get('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.findAll);
 app.put('/agenda',{preHandler: AuthMiddleware.verifyToken},agendaController.update)
-app.delete('/agenda/:idClient',{preHandler: AuthMiddleware.verifyToken},agendaController.delete)
+app.delete('/agenda/:idClient/:id',{preHandler: AuthMiddleware.verifyToken},agendaController.delete)
 
 app.post('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.create)
 app.get('/hours',{preHandler: AuthMiddleware.verifyToken},hoursController.getAll);
