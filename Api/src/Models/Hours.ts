@@ -71,4 +71,16 @@ export class Hours implements ModelsInterface<HoursType>{
             throw err
         }
     }
+
+    async defineUnavailable(date: string, time: string, idBarber: number): Promise<void>{
+        const sql = `UPDATE horarios_disponiveis SET disponivel = 0 WHERE data = ? AND hora = ? AND id_barbeiro = ?`;
+
+        try{
+            await db.execute(sql,[date,time,idBarber])
+            return
+        }catch(err){
+            console.error("Erro ao definir horário como indisponível: ",err)
+            throw err
+        }
+    }
 }

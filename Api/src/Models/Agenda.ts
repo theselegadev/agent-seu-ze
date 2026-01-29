@@ -3,6 +3,7 @@ import { Agenda as AgendaType } from "../Utils/Types.js";
 import { AgendaWithClientInfo as AgendaInfo } from "../Utils/Types.js";
 import { db } from "../config/db.js";
 import { DateValidator } from "../Utils/DateValidator.js";
+import { Hours } from "./Hours.js";
 
 export class Agenda implements ModelsInterface<AgendaType> {
 
@@ -31,10 +32,9 @@ export class Agenda implements ModelsInterface<AgendaType> {
 
         try{
             await db.execute(sql, [agenda.idBarber, agenda.idClient, agenda.datetime]);
-
-            const sqlUpdate = `UPDATE horarios_disponiveis SET disponivel = 0 WHERE data = ? AND hora = ? AND id_barbeiro = ?`;
             
-            await db.execute(sqlUpdate, [date, time, agenda.idBarber]);
+            await new Hours().defineUnavailable(date,time,agenda.idBarber)
+            
             return true
         }catch(err){
             console.error("Erro ao criar agenda:", err);
@@ -56,9 +56,7 @@ export class Agenda implements ModelsInterface<AgendaType> {
         try{
             await db.execute(sql,[entity.idClient,entity.datetime,entity.idBarber, entity.id])
 
-            const sqlUpdate = `UPDATE horarios_disponiveis SET disponivel = 0 WHERE data = ? AND hora = ? AND id_barbeiro = ?`;
-            
-            await db.execute(sqlUpdate, [date, time, entity.idBarber]);
+            await new Hours().defineUnavailable(date,time,entity.idBarber)
 
             return true
         }catch(err){
