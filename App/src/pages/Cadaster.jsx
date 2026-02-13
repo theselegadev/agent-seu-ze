@@ -8,6 +8,7 @@ const Cadaster = () => {
     const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [loading,setLoading] = useState(false);
+    const [messageError,setMessageError] = useState("")
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -24,7 +25,7 @@ const Cadaster = () => {
             localStorage.setItem("barberToken", response.data[0].token);
             navigate("/home")
         } catch (error) {
-            console.error("Error registering user:", error);
+            setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
         }
     }
 
@@ -38,7 +39,13 @@ const Cadaster = () => {
             <p className="fs-5 fw-medium">Carregando...</p>
         </div>
         }
-        
+
+        {messageError && 
+            <div className="alert alert-danger w-75 text-center" role="alert">
+                {messageError}
+            </div>
+        }
+
         {!loading &&
         <form className="col-12 col-lg-6 d-flex flex-column align-items-center border p-2 pt-4 pb-4 p-lg-4 rounded-3 shadow bg-white" onSubmit={handleSubmit}>
             <h1 className="mb-4 fw-medium">Cadastrar-se</h1>

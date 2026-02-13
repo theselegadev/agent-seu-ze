@@ -12,18 +12,23 @@ const Clients = () => {
   const [showModalCreateUser, setShowModalCreateUser] = useState(false);
   const [showModalEditClient, setShowModalEditClient] = useState(false);
   const [clientToEdit, setClientToEdit] = useState(null);
+  const [messageError,setMessageError] = useState("")
 
   const fetchClients = async () => {
-    const response = await useRequest("/clients", setLoading, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+    try{
+      const response = await useRequest("/clients", setLoading, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+        }
+      })
+  
+      if(response.status == "success"){
+        setClients(response.data);
+        localStorage.setItem("clients",JSON.stringify(response.data))
       }
-    })
-
-    if(response.status == "success"){
-      setClients(response.data);
-      localStorage.setItem("clients",JSON.stringify(response.data))
+    }catch(err){
+      setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
     }
   }
 
@@ -48,7 +53,7 @@ const Clients = () => {
             </div>
         </div>}
 
-        {!loading &&
+        {!loading && !messageError &&
           <div className="card col-11 col-lg-9 m-auto mt-5 shadow-sm">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h3>Clientes</h3>
@@ -78,9 +83,9 @@ const Clients = () => {
                   ))}
                 </tbody>
               </table>
-              {clients.length == 0 && 
+              {messageError && 
                 <div className="alert alert-danger w-100" role="alert">
-                  Nenhum cliente encontrado.
+                  {messageError}
                 </div>
               }
             </div>

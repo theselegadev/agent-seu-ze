@@ -8,6 +8,7 @@ const useRequest = async (endpoint,setLoading,options = {}) => {
       return data;
    }catch(error){
       console.error("Request failed:", error);
+      setLoading(false)
       throw error;
    } 
 }

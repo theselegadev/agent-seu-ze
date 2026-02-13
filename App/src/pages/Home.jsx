@@ -16,40 +16,54 @@ const Home = () => {
   const [agenda,setAgenda] = useState({})
   const [idClient,setIdClient] = useState()
   const [idAgenda,setIdAgenda] = useState()
+  const [messageError,setMessageError] = useState()
 
   const fetchData = async ()=>{
-    const response = await useRequest("/agenda",setLoading,{
-      method: "GET",
-      headers: {
-        "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
-      }
-    })
+    try{
+      const response = await useRequest("/agenda",setLoading,{
+        method: "GET",
+        headers: {
+          "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
+        }
+      })
 
-    setDataAgenda(response.data)
+      if(response.status == "success"){
+        setDataAgenda(response.data)
+      }else{
+        setMessageError(response.message)
+      }
+    }catch(err){
+      setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+    }
   }
 
   const fetchHours = async ()=>{
-    const response = await useRequest("/hours",setLoading,{
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
-      }
-    })
-    
-    const hours = response.data
-    const hoursAvailable = hours.filter(item => item.disponivel == 1)
-
-    if(hoursAvailable){
-      hoursAvailable.map(hour => {
-        setDateTimesAvailable(prev=>
-          [...prev, {
-            date: new Date(hour.data).toLocaleDateString("sv-SE",{
-              timeZone: "America/Sao_Paulo"
-            }),
-            time: hour.hora.slice(0,5)
-          }]
-        )
+    try{
+      const response = await useRequest("/hours",setLoading,{
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+        }
       })
+      
+      const hours = response.data
+      const hoursAvailable = hours.filter(item => item.disponivel == 1)
+  
+      if(hoursAvailable){
+        hoursAvailable.map(hour => {
+          setDateTimesAvailable(prev=>
+            [...prev, {
+              date: new Date(hour.data).toLocaleDateString("sv-SE",{
+                timeZone: "America/Sao_Paulo"
+              }),
+              time: hour.hora.slice(0,5)
+            }]
+          )
+        })
+      }
+      
+    }catch(err){
+      setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
     }
   }
 
@@ -109,9 +123,9 @@ const Home = () => {
                   ))}
                 </tbody>
               </table>
-              {dataAgenda.length == 0 && 
+              {messageError && 
                 <div className="alert alert-danger w-100" role="alert">
-                  Nenhum agendamento encontrado.
+                  {messageError}
                 </div>
               }
             </div>

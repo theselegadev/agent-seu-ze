@@ -6,34 +6,43 @@ const Account = () => {
   const [loading, setLoading] = useState(false);
   const [edit,setEdit] = useState(false);
   const [barberData,setBarberData] = useState({});
+  const [messageError,setMessageError] = useState("")
+  
   const barberDataEdit = {name: barberData.nome,telefone: barberData.telefone, address: barberData.endereco}
 
   const fetchData = async () => {
-    const response = await useRequest("/barber",setLoading,{
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("barberToken")
-      }
-    })
-
-    if(response.status === "success")
+    try{
+      const response = await useRequest("/barber",setLoading,{
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("barberToken")
+        }
+      })
+  
       setBarberData(response.data[0]);
+    }catch(err){
+      setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+    }
   }
 
   const handleSubmit = async (e)=>{
     e.preventDefault()
-    const response = await useRequest('/barber',setLoading,{
-      method: "PUT",
-      headers: {
-        "Content-Type":"application/json",
-        "Authorization": "Bearer " + localStorage.getItem("barberToken")
-      },
-      body: JSON.stringify(barberDataEdit)
-    })
 
-    if(response.status == "success")
-      setEdit(false)
+    try{
+      await useRequest('/barber',setLoading,{
+        method: "PUT",
+        headers: {
+          "Content-Type":"application/json",
+          "Authorization": "Bearer " + localStorage.getItem("barberToken")
+        },
+        body: JSON.stringify(barberDataEdit)
+      })
+    }catch(err){
+      setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+    }
+
+    setEdit(false)
   }
 
   
@@ -61,7 +70,9 @@ const Account = () => {
             </div>
         </div>}
 
-        {!loading && <form onSubmit={handleSubmit}> <div className="card col-11 col-lg-6 m-auto mt-5 shadow-sm">
+
+        {!loading &&
+        <div className="card col-11 col-lg-6 m-auto mt-5 shadow-sm"> 
           <div className="card-header d-flex justify-content-between align-items-center">
             <h3>Minha Conta</h3>
             {edit ? 
@@ -72,6 +83,7 @@ const Account = () => {
              : <button className="btn btn-primary btn-sm" onClick={()=>setEdit(true)}>Editar</button>}
           </div>
           <div className="card-body">
+            {!messageError && <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="name" className="form-label">Nome:</label>
               <input type="text" className="form-control" id="nome" value={barberData.nome} disabled={!edit} onChange={handleChange}/> 
@@ -84,8 +96,14 @@ const Account = () => {
               <label htmlFor="location" className="form-label">Localização:</label>
               <textarea type="text" className="form-control" id="endereco" value={barberData.endereco} disabled={!edit} onChange={handleChange}/> 
             </div>
-          </div> 
-        </div> </form>}
+            </form>} 
+             {messageError && 
+               <div className="alert alert-danger w-100" role="alert">
+                 {messageError}
+               </div>
+             }
+          </div>
+        </div>}
     </>
   )
 }

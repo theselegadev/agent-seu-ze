@@ -20,8 +20,6 @@ const Enter = () => {
                 body: JSON.stringify(payload)
             });
 
-            console.log("Login bem-sucedido:", response);
-
             if(response.status == "success"){
                 localStorage.setItem("barberId", response.data[0].idBarber);
                 localStorage.setItem("barberToken", response.data[0].token);

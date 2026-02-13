@@ -22,6 +22,7 @@ const Hours = () => {
   const [availableEdit,setAvailableEdit] = useState(false)
   const [timeEdit,setTimeEdit] = useState("")
   const [hourIdToEdit,setHourIdToEdit] = useState(null)
+  const [messageError,setMessageError] = useState("")
 
   const navigate = useNavigate()
   const dateNow = new Date().toLocaleDateString("sv-SE", {
@@ -34,14 +35,23 @@ const Hours = () => {
 
       if (!token || !barberId) navigate('/');
 
-      const response = await useRequest(`/hours`, setLoading, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+      try{
+        const response = await useRequest(`/hours`, setLoading, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+  
+        if(response.status == "success"){
+          setHours(response.data);
+        }else{
+          setMessageError(response.message)
         }
-      });
-      setHours(response.data);
+      }catch(err){
+        setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+      }
   }
     
 
@@ -51,25 +61,29 @@ const Hours = () => {
 
   const handleSubmit = async (e) => { 
     e.preventDefault();
+
     const token = localStorage.getItem("barberToken");
     const barberId = localStorage.getItem("barberId");
 
-    const response = await useRequest(`/hours`, setLoading, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        barberId,
-        date,
-        hour
-      })
-    });
-
-    console.log(response);
-    setShowModal(false);
-    fetchHours()
+    try{
+      await useRequest(`/hours`, setLoading, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          barberId,
+          date,
+          hour
+        })
+      });
+      
+      setShowModal(false);
+      await fetchHours()
+    }catch(err){
+      setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+    }
   }
 
   return (
@@ -121,9 +135,9 @@ const Hours = () => {
                 ))}
               </tbody>
             </table>
-             {hours.length == 0 && 
+             {messageError && 
                 <div className="alert alert-danger w-100" role="alert">
-                  Nenhuma hora cadastrada.
+                  {messageError}
                 </div>
               }
           </div>
