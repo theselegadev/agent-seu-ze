@@ -20,13 +20,19 @@ export class BarberController implements ControllerInterface<BarberType> {
     }
 
     login = async (req: FastifyRequest<{Body: {name: string, password: string}}>,reply: FastifyReply): Promise<any> => {
-        const res: number | boolean = await this.model.login(req.body.name, req.body.password);
+        try{
 
-        if(!res)
-            return reply.status(401).send(Responses.error("Nome ou senha incorretos"));
-
-        const token = Jwt.generateToken({name: req.body.name, idBarber: res as number}, process.env.JWT_SECRET as string);
-        return reply.status(200).send(Responses.success("Login relizado com sucesso",[{token}]));
+            const res: number | boolean = await this.model.login(req.body.name, req.body.password);
+    
+            if(!res)
+                return reply.status(401).send(Responses.error("Nome ou senha incorretos"));
+    
+            const token = Jwt.generateToken({name: req.body.name, idBarber: res as number}, process.env.JWT_SECRET as string);
+            return reply.status(200).send(Responses.success("Login relizado com sucesso",[{token}]));
+        }catch(err){
+            console.error("Ocorreu algum erro ao fazer login: ", err)
+            return reply.status(500).send(Responses.error("Infelizmente ocorreu algum erro ao fazer login"))
+        }
     }
 
     get = async (req: FastifyRequest, reply: FastifyReply): Promise<BarberType> => {
