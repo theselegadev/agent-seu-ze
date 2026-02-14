@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FormatIsoInDateAndTime } from "../Utils/Format";
 import useRequest from "../hooks/useRequest";
 
-const ModalEditAgenda = ({agenda, setShowModal, setLoading, fetch, dateTimesAvailable}) => {
+const ModalEditAgenda = ({agenda, setShowModal, setLoading, fetch, dateTimesAvailable,setMessageError}) => {
     const [clients,setClients] = useState([])
     const {date, time} = FormatIsoInDateAndTime(agenda.datetime)
     const [newDate,setNewDate] = useState(date)
@@ -12,19 +12,22 @@ const ModalEditAgenda = ({agenda, setShowModal, setLoading, fetch, dateTimesAvai
         timeZone: "America/Sao_Paulo"
     })
 
-    console.log(dateNow,newDate, newDate === dateNow)
-
     const fetchClients = async () => {
-        const response = await useRequest("/clients", setLoading, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+        try{
+             const response = await useRequest("/clients", setLoading, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+                }
+            })
+            
+            if(response.status == "success"){
+                setClients(response.data);
+                localStorage.setItem("clients",JSON.stringify(response.data))
             }
-        })
 
-        if(response.status == "success"){
-            setClients(response.data);
-            localStorage.setItem("clients",JSON.stringify(response.data))
+        }catch(err){
+            setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
         }
     }
 
@@ -43,19 +46,23 @@ const ModalEditAgenda = ({agenda, setShowModal, setLoading, fetch, dateTimesAvai
 
         const isDateAvailable = dateTimesAvailable.some(item => item.date === newDate)
         const isTimeAvailable = dateTimesAvailable.some(item=> item.time === newTime)
-        console.log(isDateAvailable,isTimeAvailable)
+
         if(isDateAvailable && isTimeAvailable){
-            const response = await useRequest("/agenda",setLoading,{
-                method: "PUT",
-                headers: {
-                    "Content-Type":"application/json",
-                    "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
-                },
-                body: JSON.stringify({id: agenda.id, idClient: newIdClient, datetime: newDate + " " + newTime})
-            })
-    
-            if(response.status == "success")
-                fetch()
+            try{
+                await useRequest("/agenda",setLoading,{
+                    method: "PUT",
+                    headers: {
+                        "Content-Type":"application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
+                    },
+                    body: JSON.stringify({id: agenda.id, idClient: newIdClient, datetime: newDate + " " + newTime})
+                })
+                  
+                await fetch()
+            }catch(err){
+                setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+            }
+
             setShowModal(false)
         }else{
             alert("Data ou horário escolhidos não estão disponíveis, confira seus horários")

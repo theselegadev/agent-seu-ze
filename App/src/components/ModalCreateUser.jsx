@@ -1,27 +1,31 @@
 import { useState } from 'react'
 import useRequest from "../hooks/useRequest";
 
-const ModalCreateUser = ({setShowModal, fetch, setLoading}) => {
+const ModalCreateUser = ({setShowModal, fetch, setLoading, setMessageError}) => {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const respone = await useRequest("/clients",setLoading, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("barberToken")}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name,
-                telefone: phone
+
+        try{
+            await useRequest("/clients",setLoading, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("barberToken")}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name,
+                    telefone: phone
+                })
             })
-        })
-
-        if(respone.status == "success")
-            fetch();
-
+            
+            await fetch();
+        }catch(err){
+            setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+        }
+        
         setShowModal(false);
     }
 

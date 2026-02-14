@@ -53,14 +53,14 @@ const Clients = () => {
             </div>
         </div>}
 
-        {!loading && !messageError &&
+        {!loading &&
           <div className="card col-11 col-lg-9 m-auto mt-5 shadow-sm">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h3>Clientes</h3>
               <button className="btn btn-success btn-sm" onClick={() => setShowModalCreateUser(true)}>Novo</button>
             </div>
             <div className="card-body">
-              <table className="table table-striped">
+              {!messageError && <table className="table table-striped">
                 <thead>
                   <tr>
                     <th>Nome</th>
@@ -82,7 +82,7 @@ const Clients = () => {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table>}
               {messageError && 
                 <div className="alert alert-danger w-100" role="alert">
                   {messageError}
@@ -92,9 +92,9 @@ const Clients = () => {
           </div>
         }
 
-        {showModalCreateUser && <ModalCreateUser setShowModal={setShowModalCreateUser} fetch={fetchClients} setLoading={setLoading}/>}
+        {showModalCreateUser && <ModalCreateUser setShowModal={setShowModalCreateUser} fetch={fetchClients} setLoading={setLoading} setMessageError={setMessageError}/>}
 
-        {showModalEditClient && <ModalEditClient setShowModalEditClient={setShowModalEditClient} client={clientToEdit} setLoading={setLoading} fetch={fetchClients}/>}
+        {showModalEditClient && <ModalEditClient setShowModalEditClient={setShowModalEditClient} client={clientToEdit} setLoading={setLoading} fetch={fetchClients} setMessageError={setMessageError}/>}
     </>
   )
 }

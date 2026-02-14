@@ -1,29 +1,34 @@
 import { useState } from "react";
 import useRequest from "../hooks/useRequest";
 
-const ModalEditClient = ({setShowModalEditClient, client, setLoading, fetch}) => {
+const ModalEditClient = ({setShowModalEditClient, client, setLoading, fetch,setMessageError}) => {
     const [newName, setNewName] = useState(client.nome);
     const [newPhone, setNewPhone] = useState(client.telefone);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         const token = localStorage.getItem("barberToken");
-        const response = await useRequest(`/clients/${client.id}`, setLoading, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                name: newName,
-                telefone: newPhone
-            })
-        });
 
-        if(response.status === "success"){
-            setShowModalEditClient(false);
-            fetch();
+        try{
+            await useRequest(`/clients/${client.id}`, setLoading, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: newName,
+                    telefone: newPhone
+                })
+            });
+            
+            await fetch();
+        }catch(err){
+            setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
         }
+        
+        setShowModalEditClient(false);
     }
 
   return (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useRequest from "../hooks/useRequest";
 
-const ModalCreateAgenda = ({setShowModal,setLoading,fetch,dateTimesAvailable}) => {
+const ModalCreateAgenda = ({setShowModal,setLoading,fetch,dateTimesAvailable,setMessageError}) => {
     const [idClient,setIdClient] = useState()
     const [clients,setClients] = useState([])
     const [date,setDate] = useState()
@@ -11,16 +11,20 @@ const ModalCreateAgenda = ({setShowModal,setLoading,fetch,dateTimesAvailable}) =
     })
 
     const fetchClients = async () => {
-        const response = await useRequest("/clients", setLoading, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+        try{
+            const response = await useRequest("/clients", setLoading, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("barberToken")}`
+                }
+            })
+    
+            if(response.status == "success"){
+                setClients(response.data);
+                localStorage.setItem("clients",JSON.stringify(response.data))
             }
-        })
-
-        if(response.status == "success"){
-            setClients(response.data);
-            localStorage.setItem("clients",JSON.stringify(response.data))
+        }catch(err){
+            setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
         }
     }
 
@@ -31,21 +35,23 @@ const ModalCreateAgenda = ({setShowModal,setLoading,fetch,dateTimesAvailable}) =
         const isTimeAvailable = dateTimesAvailable.some(item=> item.time === hour)
 
         if(isDateAvailable && isTimeAvailable){
-            const response = await useRequest("/agenda",setLoading, {
-                method: "POST",
-                headers: {
-                    "Content-Type":"application/json",
-                    "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
-                },
-                body: JSON.stringify({idClient,datetime: `${date} ${hour}`})
-            })
-    
-            if(response.status == "success")
-                fetch()
+            try{
+                await useRequest("/agenda",setLoading, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":"application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("barberToken")}`
+                    },
+                    body: JSON.stringify({idClient,datetime: `${date} ${hour}`})
+                })
+        
+                await fetch()
+            }catch(err){
+                setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+            }
         }else{
             alert("Data ou horário escolhidos não estão disponíveis, confira seus horários")
         }
-
         
         setShowModal(false)
     }

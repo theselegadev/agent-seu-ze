@@ -132,11 +132,11 @@ const Home = () => {
           </div>
         }
 
-        {showModalCreateAgenda && <ModalCreateAgenda setShowModal={setShowModalCreateAgenda} fetch={fetchData} setLoading={setLoading} dateTimesAvailable={dateTimesAvailable}/>}
+        {showModalCreateAgenda && <ModalCreateAgenda setShowModal={setShowModalCreateAgenda} fetch={fetchData} setLoading={setLoading} dateTimesAvailable={dateTimesAvailable} setMessageError={setMessageError}/>}
 
-        {showModalEditAgenda && <ModalEditAgenda setShowModal={setShowModalEditAgenda} agenda={agenda} setLoading={setLoading} fetch={fetchData} dateTimesAvailable={dateTimesAvailable}/>}
+        {showModalEditAgenda && <ModalEditAgenda setShowModal={setShowModalEditAgenda} agenda={agenda} setLoading={setLoading} fetch={fetchData} dateTimesAvailable={dateTimesAvailable} setMessageError={setMessageError}/>}
 
-      {showModalDelete && <ModalDelete route="/agenda" id={`${idClient}/${idAgenda}`} fetch={fetchData} setLoading={setLoading} setShowModalDelete={setShowModalDelete}/>}
+      {showModalDelete && <ModalDelete route="/agenda" id={`${idClient}/${idAgenda}`} fetch={fetchData} setLoading={setLoading} setShowModalDelete={setShowModalDelete} setMessageError={setMessageError}/>}
     </>
   )
 }

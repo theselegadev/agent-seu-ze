@@ -175,7 +175,7 @@ const Hours = () => {
 
         {showModalDelete && <ModalDelete route="/hours" id={hourIdToDelete} setShowModalDelete={setShowModalDelete} setLoading={setLoading} fetch={fetchHours}/>}
 
-        {showModalEditHour && <ModalEditHour setShowModalEditHour={setShowModalEditHour} date={dateEdit} time={timeEdit} available={availableEdit} id={hourIdToEdit} setLoading={setLoading} fetch={fetchHours}/>}
+        {showModalEditHour && <ModalEditHour setShowModalEditHour={setShowModalEditHour} date={dateEdit} time={timeEdit} available={availableEdit} id={hourIdToEdit} setLoading={setLoading} fetch={fetchHours} setMessageError={setMessageError}/>}
     </div>
   )
 }

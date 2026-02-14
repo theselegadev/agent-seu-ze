@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import useRequest from '../hooks/useRequest';
 
-const ModalEditHour = ({setShowModalEditHour, date, time, available, id, setLoading, fetch}) => {
+const ModalEditHour = ({setShowModalEditHour, date, time, available, id, setLoading, fetch,setMessageError}) => {
     const [newDate, setNewDate] = useState(date.split("T")[0]);
     const [newTime, setNewTime] = useState(time);
     const [isAvailable, setIsAvailable] = useState(available);
@@ -12,21 +12,26 @@ const ModalEditHour = ({setShowModalEditHour, date, time, available, id, setLoad
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const response = await useRequest(`/hours/${id}`, setLoading, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('barberToken')}`,
-            },
-            body: JSON.stringify({
-                date: newDate,
-                hour: newTime,
-                available: isAvailable
-            }),
-        });
-
+        try{
+            await useRequest(`/hours/${id}`, setLoading, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('barberToken')}`,
+                },
+                body: JSON.stringify({
+                    date: newDate,
+                    hour: newTime,
+                    available: isAvailable
+                }),
+            });
+    
+            fetch();
+        }catch(err){
+            setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+        }
+        
         setShowModalEditHour(false);
-        fetch();
     }
 
   return (

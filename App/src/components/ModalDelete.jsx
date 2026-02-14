@@ -1,16 +1,23 @@
 import useRequest from "../hooks/useRequest";
 
-const ModalDelete = ({route,id,setShowModalDelete,setLoading,fetch}) => {
+const ModalDelete = ({route,id,setShowModalDelete,setLoading,fetch,setMessageError}) => {
     const handleDelete = async () => {
         const token = localStorage.getItem("barberToken");
-        const response = await useRequest(`${route}/${id}`, setLoading, {
-            method: "DELETE",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
+
+        try{
+            await useRequest(`${route}/${id}`, setLoading, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            
+            await fetch();
+        }catch(err){
+            setMessageError("Infelizmente ocorreu um erro, tente recarregar a página ou tente mais tarde")
+        }
+
         setShowModalDelete(false);
-        fetch();
     }
 
   return (
