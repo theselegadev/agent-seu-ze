@@ -22,6 +22,9 @@ const Cadaster = () => {
                 body: JSON.stringify(payload)
             });
 
+            if(response.status === "error")
+                return setMessageError(response.message)
+
             localStorage.setItem("barberToken", response.data[0].token);
             navigate("/home")
         } catch (error) {
@@ -30,7 +33,7 @@ const Cadaster = () => {
     }
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 vw-100 bg-light">
+    <div className="d-flex justify-content-center align-items-center flex-column vh-100 vw-100 bg-light">
         {loading && 
         <div className="d-flex flex-column justify-content-center align-items-center gap-5">
             <div className="spinner-border text-primary" role="status">
@@ -40,14 +43,13 @@ const Cadaster = () => {
         </div>
         }
 
-        {messageError && 
+        {!loading &&
+        <form className="col-12 col-lg-6 d-flex flex-column align-items-center border p-2 pt-4 pb-4 p-lg-4 rounded-3 shadow bg-white" onSubmit={handleSubmit}>
+            {messageError && 
             <div className="alert alert-danger w-75 text-center" role="alert">
                 {messageError}
             </div>
-        }
-
-        {!loading &&
-        <form className="col-12 col-lg-6 d-flex flex-column align-items-center border p-2 pt-4 pb-4 p-lg-4 rounded-3 shadow bg-white" onSubmit={handleSubmit}>
+            }
             <h1 className="mb-4 fw-medium">Cadastrar-se</h1>
             <div className="mb-3 col-11">
                 <label className="form-label">Nome:</label>

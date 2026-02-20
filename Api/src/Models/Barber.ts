@@ -1,5 +1,5 @@
 import { db  } from "../config/db.js";
-import { ResultSetHeader } from "mysql2";
+import { FieldPacket, QueryResult, ResultSetHeader } from "mysql2";
 import { ModelsInterface } from "../Utils/interfaces/ModelsInterface.js";
 import { Barber as BarberType } from "../Utils/Types.js";
 import bcrypt from "bcrypt";
@@ -8,6 +8,7 @@ class Barber implements ModelsInterface<BarberType> {
     async create(data: BarberType): Promise<number> {
         const sql: string = "INSERT INTO barbeiro (nome,telefone,endereco,senha) VALUES (?, ?, ?, ?)";
         const hashedPassword = await bcrypt.hash(data.password, 10);
+
         try{
            const [result] = await db.execute<ResultSetHeader>(sql, [data.name, data.telefone, data.address, hashedPassword]);
            return result.insertId as number;
@@ -64,6 +65,18 @@ class Barber implements ModelsInterface<BarberType> {
             return idBarber;
         }catch(err){
             console.error("Erro ao fazer login: ", err);
+            throw err;
+        }
+    }
+
+    async isNameUnique(name: string): Promise<boolean> {
+        const sql: string = "SELECT id FROM barbeiro WHERE nome = ?";
+
+        try{
+            const [rows] = await db.execute(sql, [name]);
+            return (rows as QueryResult[]).length === 0;
+        }catch(err){
+            console.error("Erro ao verificar nome único: ", err);
             throw err;
         }
     }

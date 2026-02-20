@@ -10,6 +10,12 @@ export class BarberController implements ControllerInterface<BarberType> {
 
     create = async(req: FastifyRequest,reply: FastifyReply): Promise<void> => {
         try{
+            const name: string = (req.body as BarberType).name;
+            const isUnique: boolean = await this.model.isNameUnique(name);
+
+            if(!isUnique)
+                return reply.status(409).send(Responses.error("O nome utilizado já existe, utilize outro nome"));
+
             const idBarber: number = await this.model.create(req.body as BarberType);
             const token = Jwt.generateToken({name: (req.body as BarberType).name, idBarber}, process.env.JWT_SECRET as string);
             return reply.status(201).send(Responses.success("Barbeiro criado com sucesso", [{token}]));
