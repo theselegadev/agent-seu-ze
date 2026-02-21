@@ -80,6 +80,18 @@ class Barber implements ModelsInterface<BarberType> {
             throw err;
         }
     }
+
+    async isPhoneUnique(telefone: string): Promise<boolean> {
+        const sql: string = "SELECT id FROM barbeiro WHERE telefone = ?";
+
+        try{
+            const [rows] = await db.execute(sql, [telefone]);
+            return (rows as QueryResult[]).length === 0;
+        }catch(err){
+            console.error("Erro ao verificar telefone único: ", err);
+            throw err;
+        }
+    }
 }
 
 export {Barber}
